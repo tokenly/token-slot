@@ -3,6 +3,12 @@
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
 	/**
+	 * Use if this test interacts with the database
+	 * @var boolean
+	 */
+	protected $use_database = false;
+
+	/**
 	 * Creates the application.
 	 *
 	 * @return \Illuminate\Foundation\Application
@@ -15,5 +21,23 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
 		return $app;
 	}
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        if ($this->use_database) { $this->setUpDb(); }
+    }
+
+
+    protected function setUpDb()
+    {
+        app('Illuminate\Contracts\Console\Kernel')->call('migrate');
+    }
+
+    protected function teardownDb()
+    {
+        app('Illuminate\Contracts\Console\Kernel')->call('migrate:reset');
+    }
 
 }
