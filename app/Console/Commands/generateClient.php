@@ -1,10 +1,11 @@
 <?php namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use \Exception;
 use AddressValidate, User;
+use Illuminate\Console\Command;
+use Illuminate\Database\QueryException;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use \Exception;
 
 class generateClient extends Command {
 
@@ -50,18 +51,21 @@ class generateClient extends Command {
 		if(!$validate->checkAddress($address)){
 			throw new Exception('Invalid BTC address');
 		}
-		
-		$checkExists = User::where('email', '=', $email)->get();
-		if($checkExists){
-			throw new Exception('Client already exists');
-		}
-		
+				
 		$user = new User;
 		$user->api_key = User::generateKey($email);
 		$user->email = $email;
 		$user->forward_address = $address;
 		$user->activated = 1;
-		$save = $user->save();
+
+		// try to save the user, but catch a duplicate email
+		try {
+			$save = $user->save();
+        } catch (QueryException $e) {
+            if ($e->errorInfo[0] == 23000) { throw new Exception('Client already exists'); }
+            throw $e;
+        }
+
 		if(!$save){
 			throw new Exception('Error saving new client');
 		}
