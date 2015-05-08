@@ -1,0 +1,6 @@
+/vendor
+/node_modules
+.env*
+/storage
+composer.lock
+.gitattributes
