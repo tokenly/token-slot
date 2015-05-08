@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel {
 	protected $commands = [
 		'App\Console\Commands\generateClient',
 		'App\Console\Commands\toggleClient',
+		'App\Console\Commands\createSlot',
 	];
 
 	/**
