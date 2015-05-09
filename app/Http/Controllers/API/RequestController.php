@@ -4,9 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
-use Tokenly\LaravelEventLog\Facade\EventLog;
-use User, Slot, Input;
+use User, Slot, Input, Response;
 
 class RequestController extends APIController {
 	
@@ -17,21 +15,21 @@ class RequestController extends APIController {
 	 * */
 	public function get($slotId)
 	{
+		$user = User::$api_user;
 		$output = array();
 		//check if this is a legit slot
 		$getSlot = Slot::where('public_id', '=', $slotId)->first();
 		if(!$getSlot){
-            $message = "Invalid slot ID $slotId";
-            EventLog::logError('error.getSlot', ['slotId' => $slotId, 'message' => $message]);
-            return new JsonResponse(['message' => $message], 400); 
+            $message = "Invalid slot ID";
+			return Response::json(array('error' => $message), 400);
 		}
-		//make sure the user is real and activated
+		
 		$slotUser = User::find($getSlot->userId);
-		if(!$slotUser OR $slotUser->activated == 0){
-            $message = "Account not activated for slot $slotId";
-            EventLog::logError('error.inactiveUser', ['slotId' => $slotId, 'message' => $message]);
-            return new JsonResponse(['message' => $message], 403); 
+		if($slotUser->id != $user->id){
+            $message = "Invalid permission for slot";
+			return Response::json(array('error' => $message), 403);
 		}
+
 		//initialize xchain client
 		$xchain = xchain();
 
@@ -43,6 +41,6 @@ class RequestController extends APIController {
 		 * 
 		 * */
 		
-		return json_encode($output);
+		return Response::json($output);
 	}
 }

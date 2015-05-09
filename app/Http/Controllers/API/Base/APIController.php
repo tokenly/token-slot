@@ -9,7 +9,9 @@ class APIController extends Controller {
     public function addMiddleware() {
         // catch all errors and return a JSON response
 		$this->middleware('api.catchErrors');
-        // require hmacauth middleware for all API requests by default
-        //$this->middleware('api.protectedAuth');
+		
+		//check for client API key
+		$this->middleware('auth.client');
+        
     }
 }

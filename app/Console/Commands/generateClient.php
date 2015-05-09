@@ -1,10 +1,11 @@
 <?php namespace App\Console\Commands;
 
-use AddressValidate, User;
+use User;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use LinusU\Bitcoin\AddressValidator;
 use \Exception;
 
 class generateClient extends Command {
@@ -47,11 +48,10 @@ class generateClient extends Command {
 			throw new Exception('Invalid email address');
 		}
 		
-		$validate = new AddressValidate;
-		if(!$validate->checkAddress($address)){
+		if(!AddressValidator::isValid($address)){
 			throw new Exception('Invalid BTC address');
 		}
-				
+	
 		$user = new User;
 		$user->api_key = User::generateKey($email);
 		$user->email = $email;
