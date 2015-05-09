@@ -3,7 +3,8 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use \Exception, User, Slot, AddressValidate;
+use LinusU\Bitcoin\AddressValidator;
+use \Exception, User, Slot;
 
 class createSlot extends Command {
 
@@ -48,9 +49,12 @@ class createSlot extends Command {
 		$webhook = $this->argument('webhook');
 		$address = $this->argument('address');
 		
+		$xchain = new xchain();
+		$checkAsset = $xchain->getAsset($asset);
+		dd($checkAsset);
+
 		if(trim($address) != ''){
-			$validate = new AddressValidate;
-			if(!$validate->checkAddress($address)){
+			if(!AddressValidator::isValid($address)){
 				throw new Exception('Invalid BTC forwarding address');
 			}
 		}

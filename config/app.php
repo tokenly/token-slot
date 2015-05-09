@@ -144,7 +144,11 @@ return [
 		'App\Providers\ConfigServiceProvider',
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
-
+			
+		'Tokenly\XChainClient\XChainServiceProvider',
+		'Tokenly\HmacAuth\ServiceProvider\HmacAuthServiceProvider',
+		'Tokenly\LaravelEventLog\EventLogServiceProvider',
+		'Tokenly\LaravelApiProvider\APIServiceProvider',		
 	],
 
 	/*

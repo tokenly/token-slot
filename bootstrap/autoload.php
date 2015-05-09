@@ -33,3 +33,7 @@ if (file_exists($compiledPath))
 {
 	require $compiledPath;
 }
+
+//include custom helper functions
+include(__DIR__.'/../app/Libraries/functions.php');
+
