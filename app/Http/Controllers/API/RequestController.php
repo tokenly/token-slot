@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use User, Slot, Input, Response;
+use User, Slot, Input, Response, Payment;
 
 class RequestController extends APIController {
 	
@@ -16,6 +16,7 @@ class RequestController extends APIController {
 	public function get($slotId)
 	{
 		$user = User::$api_user;
+		$input = Input::all();
 		$output = array();
 		//check if this is a legit slot
 		$getSlot = Slot::where('public_id', '=', $slotId)->first();
@@ -32,14 +33,35 @@ class RequestController extends APIController {
 
 		//initialize xchain client
 		$xchain = xchain();
-
+		
 		/*
-		 * - generate a fresh address
-		 * - create a fresh transaction monitor with xchain and define webhook
-		 * - setup payment in DB and save details
-		 * - return address + payment ID etc.
-		 * 
+		 * come back to this and add code to obtain address and validate request total
 		 * */
+
+		$ref = '';
+		if(isset($input['ref'])){
+			$ref = trim($input['ref']);
+		}
+		
+		//save the payment data
+		$payment = new Payment;
+		$payment->slotId = $getSlot->id;
+		$payment->address = ''; //<- add address from xchain
+		$payment->total = 0; //total in satoshis
+		$payment->init_date = timestamp();
+		$payment->IP = $_SERVER['REMOTE_ADDR'];
+		$payment->reference = $ref; //user assigned reference
+		try{
+			$save = $payment->save();
+		}
+		catch(Exception $e){
+            $message = "Failed to create payment request";
+			return Response::json(array('error' => $message), 500);
+		}
+		
+		//setup the response
+		$output['payment_id'] = $payment->id;
+		$output['address'] = $payment->address;
 		
 		return Response::json($output);
 	}

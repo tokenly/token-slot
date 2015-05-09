@@ -8,3 +8,9 @@ function xchain()
 				\Config::get('settings.xchain_secret'));
 	return $client;
 }
+
+
+function timestamp()
+{
+	return date('Y-m-d H:i:s');
+}
