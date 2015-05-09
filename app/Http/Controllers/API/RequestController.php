@@ -33,24 +33,38 @@ class RequestController extends APIController {
 
 		//initialize xchain client
 		$xchain = xchain();
+		try{
+			$address = $xchain->newPaymentAddress();
+			$monitor = $xchain->newAddressMonitor($address['address'], $getSlot->webhook);
+		}
+		catch(Exception $e){
+			return Response::json(array('error' => 'Error generating payment request'), 500);
+		}
 		
-		/*
-		 * come back to this and add code to obtain address and validate request total
-		 * */
-
-		$ref = '';
-		if(isset($input['ref'])){
+		$total = 0; //allow for 0 total for "pay what you want" type situations
+		//totals should be in satoshis (or just plain number if non-divisible asset)
+		if(isset($input['total'])){
+			$total = intval($input['total']);
+			if($total < 0){
+				return Response::json(array('error' => 'Invalid total'), 400);
+			}
+		}
+		
+		$ref = ''; 
+		if(isset($input['ref'])){ //user assigned reference
 			$ref = trim($input['ref']);
 		}
 		
 		//save the payment data
 		$payment = new Payment;
 		$payment->slotId = $getSlot->id;
-		$payment->address = ''; //<- add address from xchain
-		$payment->total = 0; //total in satoshis
+		$payment->address = $address['address']; 
+		$payment->total = $total;
 		$payment->init_date = timestamp();
 		$payment->IP = $_SERVER['REMOTE_ADDR'];
-		$payment->reference = $ref; //user assigned reference
+		$payment->reference = $ref; 
+		$payment->payment_uuid = $address['id'];
+		$payment->monitor_uuid = $monitor['id'];
 		try{
 			$save = $payment->save();
 		}

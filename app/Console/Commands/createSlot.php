@@ -49,9 +49,13 @@ class createSlot extends Command {
 		$webhook = $this->argument('webhook');
 		$address = $this->argument('address');
 		
-		//$xchain = new xchain(); //check if asset is real
-		//$checkAsset = $xchain->getAsset($asset);
-		
+		$xchain = xchain(); //check if asset is real
+		try{
+			$checkAsset = $xchain->getAsset($asset);
+		}
+		catch(Exception $e){
+			throw new Exception('Invalid asset');
+		}
 
 		if(trim($address) != ''){
 			if(!AddressValidator::isValid($address)){
