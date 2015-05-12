@@ -6,14 +6,14 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use User, Slot, Input, Response, Payment;
 
-class RequestController extends APIController {
+class PaymentController extends APIController {
 	
 	/**
 	 * initiate a payment request
 	 * @param string $slotId the public_id of the payment "slot"
 	 * @return Response
 	 * */
-	public function get($slotId)
+	public function request($slotId)
 	{
 		$user = User::$api_user;
 		$input = Input::all();
@@ -51,6 +51,9 @@ class RequestController extends APIController {
 		}
 		
 		$ref = ''; 
+		if(isset($input['reference'])){
+			$input['ref'] = $input['reference'];
+		}
 		if(isset($input['ref'])){ //user assigned reference
 			$ref = trim($input['ref']);
 		}
@@ -62,8 +65,8 @@ class RequestController extends APIController {
 		$payment->total = $total;
 		$payment->init_date = timestamp();
 		$payment->IP = $_SERVER['REMOTE_ADDR'];
-		$payment->reference = $ref; 
-		$payment->payment_uuid = $address['id'];
+		$payment->reference = substr($ref, 0, 64);  //limit to 64 characters
+		$payment->payment_uuid = $address['id']; //xchain references
 		$payment->monitor_uuid = $monitor['id'];
 		try{
 			$save = $payment->save();
@@ -78,5 +81,54 @@ class RequestController extends APIController {
 		$output['address'] = $payment->address;
 		
 		return Response::json($output);
+	}
+	
+	/*
+	 * gets data for a specific payment request
+	 * @param mixed $paymentId the ID, "reference" or bitcoin address of a payment_request
+	 * @return Response
+	 * */
+	public function get($paymentId)
+	{
+		$user = User::$api_user;
+		$slots = Slot::where('userId', '=', $user->id)->get();
+		$valid_slots = array();
+		foreach($slots as $slot){
+			$valid_slots[] = $slot->id;
+		}
+		
+		$getPayment = Payment::whereIn('slotId', $valid_slots)
+					  ->where(function($query) use($paymentId){
+						  return $query->where('id', '=', $paymentId)
+										->orWhere('address', '=', $paymentId)
+										->orWhere('reference', '=', $paymentId);
+						  
+					  })
+					  ->select('id', 'slotId', 'address', 'total', 'received',
+							   'complete', 'init_date', 'complete_date',
+							   'tx_info', 'reference')
+					  ->first();
+		if(!$getPayment){
+            $message = "Invalid payment ID";
+			return Response::json(array('error' => $message), 400);
+		}
+		
+		$thisSlot = false;
+		foreach($slots as $s){
+			if($s->id == $getPayment->slotId){
+				$thisSlot = $s;
+				break;
+			}
+		}
+		
+		$getPayment->id = intval($getPayment->id);
+		unset($getPayment->slotId);
+		$getPayment->slot_id = $thisSlot->public_id;
+		$getPayment->total = intval($getPayment->total);
+		$getPayment->received = intval($getPayment->received);
+		$getPayment->complete = boolval($getPayment->complete);
+		$getPayment->tx_info = json_decode($getPayment->tx_info);
+		
+		return Response::json($getPayment);
 	}
 }
