@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use User, Slot, Input, Response, Payment, URL;
+use User, Slot, Input, Response, Payment;
 
 class PaymentController extends APIController {
 	
