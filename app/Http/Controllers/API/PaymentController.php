@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use User, Slot, Input, Response, Payment;
+use User, Slot, Input, Response, Payment, URL;
 
 class PaymentController extends APIController {
 	
@@ -18,6 +18,7 @@ class PaymentController extends APIController {
 		$user = User::$api_user;
 		$input = Input::all();
 		$output = array();
+		$time = timestamp();
 		//check if this is a legit slot
 		$getSlot = Slot::where('public_id', '=', $slotId)->first();
 		if(!$getSlot){
@@ -35,7 +36,7 @@ class PaymentController extends APIController {
 		$xchain = xchain();
 		try{
 			$address = $xchain->newPaymentAddress();
-			$monitor = $xchain->newAddressMonitor($address['address'], $getSlot->webhook);
+			$monitor = $xchain->newAddressMonitor($address['address'], route('hooks.payment').'?nonce='.strtotime($time).$getSlot->id);
 		}
 		catch(Exception $e){
 			return Response::json(array('error' => 'Error generating payment request'), 500);
@@ -63,7 +64,7 @@ class PaymentController extends APIController {
 		$payment->slotId = $getSlot->id;
 		$payment->address = $address['address']; 
 		$payment->total = $total;
-		$payment->init_date = timestamp();
+		$payment->init_date = $time;
 		$payment->IP = $_SERVER['REMOTE_ADDR'];
 		$payment->reference = substr($ref, 0, 64);  //limit to 64 characters
 		$payment->payment_uuid = $address['id']; //xchain references
