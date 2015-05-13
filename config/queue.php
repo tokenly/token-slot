@@ -16,7 +16,7 @@ return [
 	|
 	*/
 
-	'default' => env('QUEUE_DRIVER', 'sync'),
+	'default' => env('QUEUE_DRIVER', 'blockingbeanstalkd'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -41,6 +41,14 @@ return [
 			'queue' => 'default',
 			'expire' => 60,
 		],
+
+        'blockingbeanstalkd' => [
+            'driver' => env('BEANSTALK_DRIVER', 'blockingbeanstalkd'),
+            'host'   => env('BEANSTALK_HOST',   '127.0.0.1'),
+            'queue'  => null,
+            'port'   => env('BEANSTALK_PORT',   11300),
+            'ttr'    => 60,
+        ],
 
 		'beanstalkd' => [
 			'driver' => 'beanstalkd',

@@ -149,6 +149,8 @@ return [
 		'Tokenly\HmacAuth\ServiceProvider\HmacAuthServiceProvider',
 		'Tokenly\LaravelEventLog\EventLogServiceProvider',
 		'Tokenly\LaravelApiProvider\APIServiceProvider',		
+		'Tokenly\LaravelBlockingBeanstalkd\BlockingBeanstalkServiceProvider',
+		'Tokenly\XcallerClient\Provider\XCallerClientServiceProvider',
 	],
 
 	/*
