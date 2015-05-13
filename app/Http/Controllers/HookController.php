@@ -11,8 +11,7 @@ class HookController extends Controller {
 	 */
 	public function payment()
 	{	 
-		$hook = new Webhook(Config::get('settings.xchain_user'),
-							  Config::get('settings.xchain_secret'));
+		$hook = app('Tokenly\XChainClient\WebHookReceiver');
 		$xchain = xchain();
 		$input = $hook->validateAndParseWebhookNotificationFromCurrentRequest();
 		 if(is_array($input) AND isset($input['notifiedAddress']) AND Input::get('nonce')){
@@ -81,7 +80,7 @@ class HookController extends Controller {
 						
 						if($save){
 							//send off a notification to the clients webhook
-							$caller = new Xcaller;
+							$caller = app('Tokenly\XcallerClient\Client');
 							$hookData = array();
 							$hookData['payment_id'] = $getPayment->id;
 							$hookData['slot_id'] = $getSlot->public_id;
