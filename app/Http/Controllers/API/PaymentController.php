@@ -93,22 +93,8 @@ class PaymentController extends APIController {
 	{
 		$user = User::$api_user;
 		$slots = Slot::where('userId', '=', $user->id)->get();
-		$valid_slots = array();
-		foreach($slots as $slot){
-			$valid_slots[] = $slot->id;
-		}
-		
-		$getPayment = Payment::whereIn('slotId', $valid_slots)
-					  ->where(function($query) use($paymentId){
-						  return $query->where('id', '=', $paymentId)
-										->orWhere('address', '=', $paymentId)
-										->orWhere('reference', '=', $paymentId);
-						  
-					  })
-					  ->select('id', 'slotId', 'address', 'total', 'received',
-							   'complete', 'init_date', 'complete_date',
-							   'tx_info', 'reference')
-					  ->first();
+
+		$getPayment = Payment::getPayment($paymentId);
 		if(!$getPayment){
             $message = "Invalid payment ID";
 			return Response::json(array('error' => $message), 400);
@@ -131,5 +117,33 @@ class PaymentController extends APIController {
 		$getPayment->tx_info = json_decode($getPayment->tx_info);
 		
 		return Response::json($getPayment);
+	}
+	
+	/**
+	 * cancels a payment request and sets the xchain address monitor to inactive.
+	 * @param mixed $paymentId the ID, "reference" or bitcoin address of a payment_request
+	 * @return Response
+	 * */
+	public function cancel($paymentId)
+	{
+		$output = array('result' => false);
+		$getPayment = Payment::getPayment($paymentId);
+		if($getPayment->cancelled == 1){
+			$output['error'] = 'Payment already cancelled';
+			return Response::json($output, 400);
+		}
+		$xchain = xchain();
+		try{
+			$xchain->updateAddressMonitorActiveState($getPayment->monitor_uuid, false);
+		}
+		catch(\Exception $e){
+			$output['error'] = 'Error canceling payment request';
+			return Response::json($output, 500);
+		}
+		$getPayment->cancelled = 1;
+		$getPayment->cancel_time = timestamp();
+		$getPayment->save();
+		$output['result'] = true;
+		return Response::json($output);
 	}
 }

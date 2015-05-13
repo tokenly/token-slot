@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
-
+use Tokenly\XChainClient\WebHookReceiver as Webhook;
+use Config, Input, Slot, Payment;
 class HookController extends Controller {
 
 	/**
@@ -8,14 +9,17 @@ class HookController extends Controller {
 	 */
 	public function payment()
 	{	 
-		 $input = Input::all();
-		 if(isset($input['notifiedAddress']) AND isset($input['nonce'])){
+		$hook = new Webhook(Config::get('settings.xchain_user'),
+							  Config::get('settings.xchain_secret'));
+		$xchain = xchain();
+		$input = $hook->validateAndParseWebhookNotificationFromCurrentRequest();
+		 if(is_array($input) AND isset($input['notifiedAddress']) AND Input::get('nonce')){
 			 //check payment with this address exists
 			 $getPayment = Payment::where('address', '=', $input['notifiedAddress'])->where('complete', '=', 0)->first();
 			 if($getPayment){
 				 //check against the secret nonce
 				 $generateNonce = strtotime($getPayment->init_date).$getPayment->slotId;
-				 if($generateNonce == intval($input['nonce'])){
+				 if($generateNonce == intval(Input::get('nonce'))){
 					 //check for proper asset
 					 $getSlot = Slot::find($payment->slotId);
 					 if($getSlot->asset == $input['asset']){
@@ -61,6 +65,7 @@ class HookController extends Controller {
 							$getPayment->complete_date = timestamp();
 							
 							//send a request to xchain to close the payment notifier
+							$xchain->updateAddressMonitorActiveState($getPayment->monitor->uuid, false);
 						}
 						
 						//save info
