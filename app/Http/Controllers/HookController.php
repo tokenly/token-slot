@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 use Tokenly\XChainClient\WebHookReceiver as Webhook;
+use Tokenly\XcallerClient\Client as Xcaller;
+use Tokenly\CurrencyLib\CurrencyUtil as Currency;
 use Config, Input, Slot, Payment;
 class HookController extends Controller {
 
@@ -45,6 +47,7 @@ class HookController extends Controller {
 						 }
 						 //get a total amount received and check if payment is complete
 						 $totalReceived = 0;
+						 $leastConfirmed = 0;
 						 $complete = false;
 						 if(count($tx_info) > 0){
 							 $complete = true;
@@ -52,6 +55,9 @@ class HookController extends Controller {
 								 $totalReceived += $info['amount'];
 								 if($info['confirmations'] < $getSlot->min_conf){
 									 $complete = false; //one of the transactions has less than required confirms, not complete
+								 }
+								 if($info['confirmations'] > $leastConfirmed){
+									 $leastConfirmed = $info['confirmations'];
 								 }
 							 }
 						}
@@ -75,7 +81,24 @@ class HookController extends Controller {
 						
 						if($save){
 							//send off a notification to the clients webhook
+							$caller = new Xcaller;
+							$hookData = array();
+							$hookData['payment_id'] = $getPayment->id;
+							$hookData['slot_id'] = $getSlot->public_id;
+							$hookData['reference'] = $getPayment->reference;
+							$hookData['payment_address'] = $getPayment->address;
+							$hookData['asset'] = $getSlot->asset;
+							$hookData['total'] = Currency::satoshisToValue($getPayment->total);
+							$hookData['total_satoshis'] = $getPayment->total;
+							$hookData['received'] = Currency::satoshisToValue($totalReceived);
+							$hookData['received_satoshis'] = $totalReceived;
+							$hookData['confirmations'] = $leastConfirmed;							
+							$hookData['init_date'] = $getPayment->init_date;
+							$hookData['complete'] = boolval($getPayment->complete);
+							$hookData['complete_date'] = $getPayment->complete_date;
+							$hookData['tx_info'] = $tx_info;
 							
+							$sendWebhook - $caller->sendWebhook($hookData, $getSlot->webhook);
 						}
 					 }
 				 }
