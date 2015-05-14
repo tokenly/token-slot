@@ -13,7 +13,8 @@ class HookController extends Controller {
 	{	 
 		$hook = app('Tokenly\XChainClient\WebHookReceiver');
 		$xchain = xchain();
-		$input = $hook->validateAndParseWebhookNotificationFromCurrentRequest();
+		$parseHook = $hook->validateAndParseWebhookNotificationFromCurrentRequest();
+		$input = $parseHook['payload'];
 		 if(is_array($input) AND isset($input['notifiedAddress']) AND Input::get('nonce')){
 			 //check payment with this address exists
 			 $getPayment = Payment::where('address', '=', $input['notifiedAddress'])->where('complete', '=', 0)->first();
