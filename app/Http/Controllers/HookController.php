@@ -70,7 +70,7 @@ class HookController extends Controller {
 							$getPayment->complete_date = timestamp();
 							
 							//send a request to xchain to close the payment notifier
-							$xchain->updateAddressMonitorActiveState($getPayment->monitor->uuid, false);
+							$xchain->updateAddressMonitorActiveState($getPayment->monitor_uuid, false);
 						}
 						
 						//save info
