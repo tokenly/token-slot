@@ -97,7 +97,7 @@ class HookController extends Controller {
 							$hookData['complete_date'] = $getPayment->complete_date;
 							$hookData['tx_info'] = $tx_info;
 							
-							$sendWebhook - $caller->sendWebhook($hookData, $getSlot->webhook);
+							$sendWebhook = $caller->sendWebhook($hookData, $getSlot->webhook);
 						}
 					 }
 				 }
