@@ -16,7 +16,8 @@
         "tokenly/laravel-api-provider": "dev-master@dev",
         "tokenly/laravel-event-log": "dev-master@dev",
 		"tokenly/laravel-blocking-beanstalkd": "dev-master@dev",
-		"tokenly/xcaller-client": "dev-master@dev"
+		"tokenly/xcaller-client": "dev-master@dev",
+		"pda/pheanstalk": "~3"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
