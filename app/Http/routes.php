@@ -1,7 +1,7 @@
 <?php
 
 
-Route::get('/', 'WelcomeController@index');
+Route::get('/', 'HomeController@index');
 
 /* API methods */
 Route::get('api/v1/payments/request/{slotId}', 'API\PaymentController@request');
