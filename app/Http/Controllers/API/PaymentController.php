@@ -20,16 +20,13 @@ class PaymentController extends APIController {
 		$output = array();
 		$time = timestamp();
 		//check if this is a legit slot
-		$getSlot = Slot::where('public_id', '=', $slotId)->first();
+		$getSlot = Slot::where('userId', '=', $user->id)
+						 ->where('public_id', '=', $slotId)
+						 ->orWhere('nickname', '=', $slotId)
+						 ->first();
 		if(!$getSlot){
             $message = "Invalid slot ID";
 			return Response::json(array('error' => $message), 400);
-		}
-		
-		$slotUser = User::find($getSlot->userId);
-		if($slotUser->id != $user->id){
-            $message = "Invalid permission for slot";
-			return Response::json(array('error' => $message), 403);
 		}
 
 		//initialize xchain client

@@ -71,6 +71,7 @@ class createSlot extends Command {
 		$slot->min_conf = intval($this->argument('min_conf'));
 		$slot->forward_address = $address;
 		$slot->label = $this->argument('label');
+		$slot->nickname = $this->argument('nickname');
 		$save = $slot->save();
 		$this->info($asset.' token slot created with public ID '.$slot->public_id."\n");
 	}
@@ -88,6 +89,7 @@ class createSlot extends Command {
 			['label', InputArgument::OPTIONAL, 'Optional reference label',null],
 			['min_conf', InputArgument::OPTIONAL, 'Minimum confirmations required for payment completion',1],
 			['address', InputArgument::OPTIONAL, 'Specific forwarding address',null],
+			['nickname', InputArgument::OPTIONAL, 'Nickname/alias for the slot, can be used instead of public_id',null],
 		];
 	}
 

@@ -18,7 +18,7 @@ class SlotsController extends APIController {
 		$user = User::$api_user;
 		$slots = Slot::where('userId', '=', $user->id)
 				->select('public_id','asset','webhook','min_conf','forward_address',
-						'label', 'created_at', 'updated_at')
+						'label', 'nickname', 'created_at', 'updated_at')
 				->get();
 		foreach($slots as &$slot){
 			$slot->min_conf = intval($slot->min_conf);
@@ -34,9 +34,11 @@ class SlotsController extends APIController {
 	public function get($slotId)
 	{
 		$user = User::$api_user;
-		$slot = Slot::where('userId', '=', $user->id)->where('public_id', '=', $slotId)
+		$slot = Slot::where('userId', '=', $user->id)
+				->where('public_id', '=', $slotId)
+				->orWhere('nickname', '=', $slotId)
 				->select('public_id','asset','webhook','min_conf','forward_address',
-						 'label', 'created_at', 'updated_at')
+						 'label', 'nickname', 'created_at', 'updated_at')
 				->first();
 		if(!$slot){
 			$output = array('error' => 'Invalid slot ID');
@@ -54,7 +56,10 @@ class SlotsController extends APIController {
 	public function payments($slotId)
 	{
 		$user = User::$api_user;
-		$slot = Slot::where('userId', '=', $user->id)->where('public_id', '=', $slotId)->first();
+		$slot = Slot::where('userId', '=', $user->id)
+					  ->where('public_id', '=', $slotId)
+					  ->orWhere('nickname', '=', $slotId)
+					  ->first();
 		if(!$slot){
 			$output = array('error' => 'Invalid slot ID');
 			return Response::json($output, 400);
