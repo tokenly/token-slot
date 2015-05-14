@@ -22,7 +22,7 @@ class HookController extends Controller {
 				 $generateNonce = strtotime($getPayment->init_date).$getPayment->slotId;
 				 if($generateNonce == intval(Input::get('nonce'))){
 					 //check for proper asset
-					 $getSlot = Slot::find($payment->slotId);
+					 $getSlot = Slot::find($getPayment->slotId);
 					 if($getSlot->asset == $input['asset']){
 						 $tx_info = json_decode($getPayment->tx_info, true);
 						 $found = false;
