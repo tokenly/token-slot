@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
-use Tokenly\XChainClient\WebHookReceiver as Webhook;
-use Tokenly\XcallerClient\Client as Xcaller;
+use Illuminate\Http\Request;
 use Tokenly\CurrencyLib\CurrencyUtil as Currency;
 use Config, Input, Slot, Payment;
 class HookController extends Controller {
@@ -9,11 +8,11 @@ class HookController extends Controller {
 	 * webhook for receiving payment notifications from xchain
 	 * @return null
 	 */
-	public function payment()
+	public function payment(Request $request)
 	{	 
 		$hook = app('Tokenly\XChainClient\WebHookReceiver');
 		$xchain = xchain();
-		$parseHook = $hook->validateAndParseWebhookNotificationFromCurrentRequest();
+		$parseHook = $hook->validateAndParseWebhookNotificationFromRequest($request);
 		$input = $parseHook['payload'];
 		 if(is_array($input) AND isset($input['notifiedAddress']) AND Input::get('nonce')){
 			 //check payment with this address exists
