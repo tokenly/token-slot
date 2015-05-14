@@ -4,6 +4,7 @@
 Route::get('/', 'HomeController@index');
 
 /* API methods */
+Route::get('api/v1/payments/all', 'API\PaymentController@all');
 Route::get('api/v1/payments/request/{slotId}', 'API\PaymentController@request');
 Route::get('api/v1/payments/{paymentId}', 'API\PaymentController@get');
 Route::post('api/v1/payments/{paymentId}/cancel', 'API\PaymentController@cancel');

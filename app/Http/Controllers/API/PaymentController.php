@@ -143,4 +143,50 @@ class PaymentController extends APIController {
 		$output['result'] = true;
 		return Response::json($output);
 	}
+	
+	/**
+	 * returns a list of all payment requests tied to this clients account
+	 * @return Response
+	 * */
+	public function all()
+	{
+		$output = array();
+		$user = User::$api_user;
+		$input = Input::all();
+		$slots = Slot::where('userId', '=', $user->id)->get();
+		$valid_slots = array();
+		if($slots){
+			foreach($slots as $slot){
+				$valid_slots[] = $slot->id;
+			}
+		}
+		
+		if(count($valid_slots) == 0){
+			$output = array('error' => 'Please create a slot first');
+			return Response::json($output, 400);
+		}
+		$payments = Payment::whereIn('slotId', $valid_slots);
+		if(isset($input['incomplete'])){
+			if($input['incomplete'] == 0){
+				$andComplete = true;
+			}
+			else{
+				$andComplete = false;
+			}
+			$payments = $payments->where('complete', '=', $andComplete);
+		}
+		
+		
+		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
+							 'reference', 'tx_info')->get();
+					
+		foreach($payments as &$payment){
+			$payment->tx_info = json_decode($payment->tx_info);
+			$payment->total = intval($payment->total);
+			$payment->received = intval($payment->received);
+			$payment->complete = boolval($payment->complete);
+			$payment->id = intval($payment->id);
+		}
+		return Response::json($payments);
+	}	
 }
