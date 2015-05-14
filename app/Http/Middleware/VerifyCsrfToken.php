@@ -15,6 +15,7 @@ class VerifyCsrfToken extends BaseVerifier {
 	 */
 	public function handle($request, Closure $next)
 	{
+		dd($request->getRouteName());
 		foreach($this->openRoutes as $route){
 		  if($request->is($route)){
 			return $next($request);
