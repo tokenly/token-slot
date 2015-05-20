@@ -77,15 +77,26 @@ class SlotsController extends APIController {
 			}
 			$payments = $payments->where('complete', '=', $andComplete);
 		}
+		$andCancel = false;
+		if(isset($input['cancelled'])){
+			if(boolval($input['cancelled'])){
+				$andCancel = true;
+			}
+		}
+		if(!$andCancel){
+			$payments = $payments->where('cancelled', '!=', '1');
+		}		
 		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
-							 'reference', 'tx_info')
+							 'reference', 'tx_info', 'cancelled', 'cancel_time')
 					->get();
 		foreach($payments as &$payment){
 			$payment->tx_info = json_decode($payment->tx_info);
 			$payment->total = intval($payment->total);
 			$payment->received = intval($payment->received);
 			$payment->complete = boolval($payment->complete);
+			$payment->cancelled = boolval($payment->cancelled);
 			$payment->id = intval($payment->id);
+			$payment->slot_id = $slot->public_id;
 		}
 		return Response::json($payments);
 	}
@@ -98,17 +109,28 @@ class SlotsController extends APIController {
 	{
 		$user = User::$api_user;
 		$input = Input::all();
-		$required = array('asset', 'webhook', 'forward_address', 'min_conf');
+		$required = array('asset', 'webhook');
 		foreach($required as $req){
 			if(!isset($input[$req]) OR trim($input[$req]) == ''){
 				$output = array('error' => $req.' required');
 				return Response::json($output, 400);
 			}
 		}
-		$asset = strtoupper($input['asset']);
-		$webhook = $input['webhook'];
-		$address = $input['forward_address'];
+		$asset = strtoupper(trim($input['asset']));
+		$webhook = trim($input['webhook']);
+		$address = null;
+		$min_conf = 0;
 		
+		if(isset($input['forward_address'])){
+			$address = $input['forward_address'];
+			if(trim($address) != ''){
+				if(!AddressValidator::isValid($address)){
+					$output = array('error' => 'Invalid BTC address');
+					return Response::json($output, 400);
+				}
+			}		
+		}
+			
 		$xchain = xchain(); //check if asset is real
 		try{
 			$checkAsset = $xchain->getAsset($asset);
@@ -118,16 +140,12 @@ class SlotsController extends APIController {
 			return Response::json($output, 400);
 		}
 
-		if(trim($address) != ''){
-			if(!AddressValidator::isValid($address)){
-				$output = array('error' => 'Invalid BTC address');
+		if(isset($input['min_conf'])){
+			$min_conf = intval($input['min_conf']);
+			if($min_conf < 0){
+				$output = array('error' => 'Invalid minimum confirmations');
 				return Response::json($output, 400);
 			}
-		}
-		$input['min_conf'] = intval($input['min_conf']);
-		if($input['min_conf'] < 0){
-			$output = array('error' => 'Invalid minimum confirmations');
-			return Response::json($output, 400);
 		}
 		
 		$slot = new Slot;
@@ -135,7 +153,7 @@ class SlotsController extends APIController {
 		$slot->public_id = str_random(20);
 		$slot->asset = $asset;
 		$slot->webhook = $webhook;
-		$slot->min_conf = $input['min_conf'];
+		$slot->min_conf = $min_conf;
 		$slot->forward_address = $address;
 		if(isset($input['label'])){
 			$slot->label = trim($input['label']);

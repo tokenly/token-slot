@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -173,6 +172,7 @@
 						<strong>Parameters:</strong>
 						<ul>
 							<li>incomplete (boolean) - optional</li>
+							<li>cancelled (boolean) - optional</li>
 						</ul>
 						<strong>Returns:</strong>
 						<ul>
@@ -182,6 +182,10 @@
 							If <em>incomplete</em> field is included and set to "true", then only 
 							payments which are not yet complete will be included. If set to "false", then it
 							will return only completed payments. Exclude the <em>incomplete</em> field to get both.
+						</p>
+						<p>
+							If <em>cancelled</em> is set to true, then closed/cancelled payment requests will be 
+							included in the response. This is false by default.
 						</p>
 					</div>
 				</li>								
@@ -211,7 +215,7 @@
 							<li>asset (string)</li>
 							<li>webhook (string)</li>
 							<li>forward_address (string) - optional</li>
-							<li>min_conf (integer)</li>
+							<li>min_conf (integer) - optional (defaults 0)</li>
 							<li>label (string) - optional</li>
 							<li>nickname (string) - optional</li>
 						</ul>
@@ -312,6 +316,7 @@
 						<strong>Parameters:</strong>
 						<ul>
 							<li>incomplete (boolean) - optional</li>
+							<li>cancelled (boolean) - optional</li>
 						</ul>
 						<strong>Returns:</strong>
 						<ul>
@@ -322,6 +327,10 @@
 							payments which are not yet complete will be included. If set to "false", then it
 							will return only completed payments. Exclude the <em>incomplete</em> field to get both.
 						</p>
+						<p>
+							If <em>cancelled</em> is set to true, then closed/cancelled payment requests will be 
+							included in the response. This is false by default.
+						</p>						
 					</div>
 				</li>		
 			</ul>
@@ -410,6 +419,9 @@
 							<li>complete_date (timestamp)</li>
 							<li>reference (string)</li>
 							<li>tx_info (array of Transaction Info Objects)</li>
+							<li>slot_id (string)</li>
+							<li>cancelled (boolean)</li>
+							<li>cancel_time (timestamp)</li>
 						</ul>
 						<p>
 							A payment request can receive multiple transactions,

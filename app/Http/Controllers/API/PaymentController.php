@@ -112,6 +112,7 @@ class PaymentController extends APIController {
 		$getPayment->received = intval($getPayment->received);
 		$getPayment->complete = boolval($getPayment->complete);
 		$getPayment->tx_info = json_decode($getPayment->tx_info);
+		$getPayment->cancelled = boolval($getPayment->cancelled);
 		
 		return Response::json($getPayment);
 	}
@@ -175,10 +176,18 @@ class PaymentController extends APIController {
 			}
 			$payments = $payments->where('complete', '=', $andComplete);
 		}
-		
+		$andCancel = false;
+		if(isset($input['cancelled'])){
+			if(boolval($input['cancelled'])){
+				$andCancel = true;
+			}
+		}
+		if(!$andCancel){
+			$payments = $payments->where('cancelled', '!=', '1');
+		}
 		
 		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
-							 'reference', 'tx_info')->get();
+							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time')->get();
 					
 		foreach($payments as &$payment){
 			$payment->tx_info = json_decode($payment->tx_info);
@@ -186,6 +195,12 @@ class PaymentController extends APIController {
 			$payment->received = intval($payment->received);
 			$payment->complete = boolval($payment->complete);
 			$payment->id = intval($payment->id);
+			$payment->cancelled = boolval($payment->cancelled);
+			foreach($slots as $slot){
+				if($slot->id == $payment->slot_id){
+					$payment->slot_id = $slot->public_id;
+				}
+			}
 		}
 		return Response::json($payments);
 	}	
