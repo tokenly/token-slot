@@ -78,14 +78,14 @@ class sweepTokens extends Command {
 					if($item['sweep_outputs']){
 						//BTC payment.. sweep it all to their address
 						$send = $this->xchain->sweepBTC($item['payment']->payment_uuid, $address,
-													round($balance/self::SATOSHI_MOD,8),  $this->tx_fee, true);
+													$balance/self::SATOSHI_MOD,  $this->tx_fee/self::SATOSHI_MOD, true);
 
 					}
 				}
 				else{
 					$balance = $item['balances'][$token];
 					$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-												round($balance/self::SATOSHI_MOD,8), $token, $this->tx_fee, $this->tx_dust,
+												$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD,
 												$this->tx_dust);
 												
 				}
@@ -110,8 +110,8 @@ class sweepTokens extends Command {
 		foreach($payments as $item){
 			if($item['prime_btc'] > 0){
 				try{
-					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], round($item['prime_btc']/self::SATOSHI_MOD,8),
-													'BTC', $this->tx_fee);
+					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
+													'BTC', $this->tx_fee/self::SATOSHI_MOD);
 				}
 				catch(Exception $e){
 					$this->error('Error priming: '.$e->getMessage());
