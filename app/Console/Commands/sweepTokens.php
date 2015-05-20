@@ -50,19 +50,6 @@ class sweepTokens extends Command {
 
 		$send = $this->sendTokens($prep);
 		$save = $this->saveSweepData($send);
-
-		/*
-		 * process
-		 * 	- calculate how many transactions are needed and how much BTC tx fuel needs to be used, where it needs to go etc.
-		 * 	- check the fuel source address, make sure it has enough to prime all addresses
-		 * 	- prime all addresses
-		 * 	- generate token+BTC sends for every address to the appropriate forwarding addresses
-		 * 	- for each successful send, mark the payment_request as swept and save transaction info
-		 * 	- if count(success_tx) > 0, save all the info for this batch somewhere..
-		 * 	- if any errors, send a notification to contact email
-		 * 
-		 * 
-		 * */
 	}
 	
 	protected function saveSweepData($payments)
