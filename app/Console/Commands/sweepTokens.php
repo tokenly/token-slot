@@ -156,7 +156,7 @@ class sweepTokens extends Command {
 		}
 		$total_fuel = $this->getFuelBalance();
 		if($btc_needed > $total_fuel){
-			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.($btc_needed - $total_fuel));
+			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.(($btc_needed - $total_fuel)/100000000));
 		}
 		return $list;
 	}
