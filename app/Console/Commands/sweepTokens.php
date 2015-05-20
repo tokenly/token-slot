@@ -62,7 +62,7 @@ class sweepTokens extends Command {
 				$getPayment->swept = 1;
 				$getPayment->sweep_info = json_encode($item['send_info']);
 				$getPayment->save();
-				$this->info('Payment of '.($item['send_info']['quantity']/SATOSHI_MOD).' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
+				$this->info('Payment of '.($item['send_info']['quantity']/self::SATOSHI_MOD).' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
 			}
 		}
 	}
@@ -78,14 +78,14 @@ class sweepTokens extends Command {
 					if($item['sweep_outputs']){
 						//BTC payment.. sweep it all to their address
 						$send = $this->xchain->sweepBTC($item['payment']->payment_uuid, $address,
-													round($balance/SATOSHI_MOD,8),  $this->tx_fee, true);
+													round($balance/self::SATOSHI_MOD,8),  $this->tx_fee, true);
 
 					}
 				}
 				else{
 					$balance = $item['balances'][$token];
 					$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-												round($balance/SATOSHI_MOD,8), $token, $this->tx_fee, $this->tx_dust,
+												round($balance/self::SATOSHI_MOD,8), $token, $this->tx_fee, $this->tx_dust,
 												$this->tx_dust);
 												
 				}
@@ -110,7 +110,7 @@ class sweepTokens extends Command {
 		foreach($payments as $item){
 			if($item['prime_btc'] > 0){
 				try{
-					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], round($item['prime_btc']/SATOSHI_MOD,8),
+					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], round($item['prime_btc']/self::SATOSHI_MOD,8),
 													'BTC', $this->tx_fee);
 				}
 				catch(Exception $e){
@@ -158,7 +158,7 @@ class sweepTokens extends Command {
 		}
 		$total_fuel = $this->getFuelBalance();
 		if($btc_needed > $total_fuel){
-			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.(($btc_needed - $total_fuel)/SATOSHI_MOD));
+			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.(($btc_needed - $total_fuel)/self::SATOSHI_MOD));
 		}
 		return $list;
 	}
