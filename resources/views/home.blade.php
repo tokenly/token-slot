@@ -82,9 +82,16 @@
 			<a name="api"></a>
 			<h2>API Reference</h2>
 			<p>
+				In order to access the API, you must first obtain an API key. Please <a href="#contact">contact us</a> during this beta
+				period if you would like to become an early use case.
+			</p>
+			<p>
 				All API methods accept requests and return responses in JSON format.
 				If an error occurs, an appropriate HTTP status code is given (e.g 400, 403, 500),
 				and an "error" field is included in the JSON response. 
+			</p>
+			<p>
+				API endpoints look like this: <strong>https://slots.tokenly.com/api/v1/{endpoint/method}?key={my API key}</strong>
 			</p>
 			<strong>Quick links:</strong>
 			<ul>
@@ -321,7 +328,7 @@
 			<a name="webhooks"></a>
 			<h3>Webhook Notifications</h3>
 			<p>
-				Token Slot automatically sends out notifications to your application each time it sees a payment received
+				Token Slot automatically sends out notifications to your application each time it sees a transaction received
 				for a payment request which you have made. The receiving notification end of your application is known as a "webhook".
 			</p>
 			<p>
@@ -329,11 +336,14 @@
 				newly received transactions. As soon as it is seen (even with 0 confirmations), a JSON formatted POST request
 				is sent to the webhook defined in your "slot". An additional notification is sent each time something has changed with the payment
 				(e.g additional confirmations have occurred). The webhook notifications stop being sent once the payment request
-				has been completed or closed. If for some reason contacting the webhook fails (servers down?), it will retry a minute or so later, up to 30 times before 
+				has been completed or cancelled. If for some reason contacting the webhook fails (servers down?), it will retry a minute or so later, up to 30 times before 
 				giving up. 
 			</p>
 			<strong>Payment Notification Fields:</strong>
 			<ul>
+				<li>id (integer)</li>
+				<li>time (timestamp)</li>
+				<li>attempt (integer)</li>
 				<li>payload (object)
 					<ul>
 						<li>payment_id (integer)</li>
@@ -356,8 +366,12 @@
 			</ul>
 			<strong>Sample JSON:</strong>
 			<pre>
-			
-			
+{  
+   "id":329,
+   "time":"2015-05-20T17:44:39+00:00",
+   "attempt":1,
+   "payload":"{\"payment_id\":\"36\",\"slot_id\":\"xiXyx5X2G3G3CIS1mg98\",\"reference\":\"0\",\"payment_address\":\"1Pck9kYC9fMjvahBhKrttiiWdjC2bxk1pT\",\"asset\":\"TOKENLY\",\"total\":1,\"total_satoshis\":\"100000000\",\"received\":1,\"received_satoshis\":100000000,\"confirmations\":0,\"init_date\":\"2015-05-20 17:44:28\",\"complete\":true,\"complete_date\":\"2015-05-20 17:44:39\",\"tx_info\":[{\"sources\":[\"1KthnhXAWmD6TuyjK3KbswVWvkuK3i2Keq\"],\"txid\":\"6755cc62874303303ae31a1303fd2b76c3db12dbb942abf053d334b1e051ac39\",\"amount\":100000000,\"confirmations\":0}]}"
+}
 			</pre>
 			<a name="response-obs"></a>
 			<h3>Response Objects</h3>
@@ -438,7 +452,7 @@
 							<li>updated_at (timestamp)</li>
 						</ul>
 						<p>
-							A slot can be referenced be either it's <em>public_id</em> or <em>nickname</em> field.
+							A slot can be referenced be either its <em>public_id</em> or <em>nickname</em> field.
 						</p>
 						<strong>Sample JSON:</strong>
 						<pre>
@@ -447,9 +461,9 @@
     "asset": "COFFEEPOUND",
     "webhook": "https://example.org/tokenslot-hook",
     "min_conf": 1,
-    "forward_address": null,
+    "forward_address": "1KthnhXAWmD6TuyjK3KbswVWvkuK3i2Keq",
     "label": "demo_hook",
-    "nickname": null,
+    "nickname": "demo",
     "created_at": "2015-05-14 01:04:28",
     "updated_at": "2015-05-14 01:04:28"
 }						
