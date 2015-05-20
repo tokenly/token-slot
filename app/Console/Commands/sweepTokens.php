@@ -3,7 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Slot, Payment, User, Config;
+use Slot, Payment, User, Config, Exception;
 
 class sweepTokens extends Command {
 
