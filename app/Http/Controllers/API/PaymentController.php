@@ -167,7 +167,7 @@ class PaymentController extends APIController {
 		}
 		$payments = Payment::whereIn('slotId', $valid_slots);
 		if(isset($input['incomplete'])){
-			if($input['incomplete'] == 0){
+			if(boolval($input['incomplete'])){
 				$andComplete = true;
 			}
 			else{

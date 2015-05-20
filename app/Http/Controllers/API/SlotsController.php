@@ -57,6 +57,7 @@ class SlotsController extends APIController {
 	public function payments($slotId)
 	{
 		$user = User::$api_user;
+		$input = Input::all();
 		$slot = Slot::where('userId', '=', $user->id)
 					  ->where('public_id', '=', $slotId)
 					  ->orWhere('nickname', '=', $slotId)
@@ -65,8 +66,18 @@ class SlotsController extends APIController {
 			$output = array('error' => 'Invalid slot ID');
 			return Response::json($output, 400);
 		}
-		$payments = Payment::where('slotId', '=', $slot->id)
-					->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
+		$payments = Payment::where('slotId', '=', $slot->id);
+		
+		if(isset($input['incomplete'])){
+			if(boolval($input['incomplete'])){
+				$andComplete = true;
+			}
+			else{
+				$andComplete = false;
+			}
+			$payments = $payments->where('complete', '=', $andComplete);
+		}
+		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
 							 'reference', 'tx_info')
 					->get();
 		foreach($payments as &$payment){
@@ -113,13 +124,18 @@ class SlotsController extends APIController {
 				return Response::json($output, 400);
 			}
 		}
+		$input['min_conf'] = intval($input['min_conf']);
+		if($input['min_conf'] < 0){
+			$output = array('error' => 'Invalid minimum confirmations');
+			return Response::json($output, 400);
+		}
 		
 		$slot = new Slot;
 		$slot->userId = $user->id;
 		$slot->public_id = str_random(20);
 		$slot->asset = $asset;
 		$slot->webhook = $webhook;
-		$slot->min_conf = intval($input['min_conf']);
+		$slot->min_conf = $input['min_conf'];
 		$slot->forward_address = $address;
 		if(isset($input['label'])){
 			$slot->label = trim($input['label']);

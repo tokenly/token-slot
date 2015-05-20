@@ -1,6 +1,5 @@
 /* Space out content a bit */
 body {
-  padding-top: 20px;
   padding-bottom: 20px;
 }
 
@@ -14,8 +13,7 @@ body {
 
 /* Custom page header */
 .header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e5e5;
+
 }
 /* Make the masthead heading the same height as the navigation */
 .header h3 {
@@ -67,6 +65,7 @@ body {
 	display: block;
 	padding: 0px;
 	margin: 0px;
+	margin-top: 20px;
 }
 
 .api-list ul{
@@ -80,13 +79,33 @@ body {
 }
 
 .api-list > li{
-	list-style-type: none;
-	display: block;
+	list-style-type: disc;
 	margin: 0px;
+	margin-left: 25px;
 	padding: 0px;
-	margin-bottom: 10px;
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+	border-bottom: solid 1px #efefef;
 }
 
+.api-list > li:last-child{
+	border-bottom: none;
+}
+
+.header-container{
+	position: fixed;
+	width: 100%;
+	background: rgba(255,255,255,0.9);
+	z-index: 1000000;
+	margin-top: 0px;
+	padding-top: 20px;
+	height: 60px;
+}
+
+.main-container{
+	position: relative;
+	top: 100px;
+}
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
   /* Remove the padding we set earlier */
