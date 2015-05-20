@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\generateClient',
 		'App\Console\Commands\toggleClient',
 		'App\Console\Commands\createSlot',
+		'App\Console\Commands\sweepTokens',
+		'App\Console\Commands\newAddress',
 	];
 
 	/**
@@ -24,8 +26,7 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('inspire')
-				 ->hourly();
+		$schedule->command('sweepTokens')->twiceDaily()->withoutOverlapping();
 	}
 
 }
