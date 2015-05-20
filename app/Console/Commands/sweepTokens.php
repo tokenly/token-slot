@@ -6,6 +6,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Slot, Payment, User, Config, Exception;
 
 class sweepTokens extends Command {
+	
+	const SATOSHI_MOD = 100000000;
 
 	/**
 	 * The console command name.
@@ -60,7 +62,7 @@ class sweepTokens extends Command {
 				$getPayment->swept = 1;
 				$getPayment->sweep_info = json_encode($item['send_info']);
 				$getPayment->save();
-				$this->info('Payment of '.($item['send_info']['quantity']/100000000).' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
+				$this->info('Payment of '.($item['send_info']['quantity']/SATOSHI_MOD).' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
 			}
 		}
 	}
@@ -76,14 +78,14 @@ class sweepTokens extends Command {
 					if($item['sweep_outputs']){
 						//BTC payment.. sweep it all to their address
 						$send = $this->xchain->sweepBTC($item['payment']->payment_uuid, $address,
-													$balance,  $this->tx_fee, true);
+													round($balance/SATOSHI_MOD,8),  $this->tx_fee, true);
 
 					}
 				}
 				else{
 					$balance = $item['balances'][$token];
 					$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-												$balance, $token, $this->tx_fee, $this->tx_dust,
+												round($balance/SATOSHI_MOD,8), $token, $this->tx_fee, $this->tx_dust,
 												$this->tx_dust);
 												
 				}
@@ -108,7 +110,7 @@ class sweepTokens extends Command {
 		foreach($payments as $item){
 			if($item['prime_btc'] > 0){
 				try{
-					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc'],
+					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], round($item['prime_btc']/SATOSHI_MOD,8),
 													'BTC', $this->tx_fee);
 				}
 				catch(Exception $e){
@@ -156,7 +158,7 @@ class sweepTokens extends Command {
 		}
 		$total_fuel = $this->getFuelBalance();
 		if($btc_needed > $total_fuel){
-			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.(($btc_needed - $total_fuel)/100000000));
+			throw new Exception('Not enough fuel in '.$this->fuel_source.' - needs '.(($btc_needed - $total_fuel)/SATOSHI_MOD));
 		}
 		return $list;
 	}
