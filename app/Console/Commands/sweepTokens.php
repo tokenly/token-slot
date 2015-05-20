@@ -89,7 +89,7 @@ class sweepTokens extends Command {
 				}
 			}
 			catch(Exception $e){
-				$this->error($e->getMessage());
+				$this->error('Error sending tokens: '.$e->getMessage());
 				$send = false;
 			}
 			
@@ -112,7 +112,7 @@ class sweepTokens extends Command {
 													'BTC', $this->tx_fee);
 				}
 				catch(Exception $e){
-					$this->error($e->getMessage());
+					$this->error('Error priming: '.$e->getMessage());
 				}
 			}
 		}
@@ -198,7 +198,7 @@ class sweepTokens extends Command {
 			$balance = $this->xchain->getBalances($this->fuel_source, true);
 		}
 		catch(Exception $e){
-			$this->error($e->getMessage());
+			$this->error('Error getting fuel balance: '.$e->getMessage());
 			return 0;
 		}
 		if(isset($balance['BTC'])){
