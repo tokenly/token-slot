@@ -62,7 +62,7 @@ class sweepTokens extends Command {
 				$getPayment->swept = 1;
 				$getPayment->sweep_info = json_encode($item['send_info']);
 				$getPayment->save();
-				$this->info('Payment of '.($item['send_info']['quantity']/self::SATOSHI_MOD).' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
+				$this->info('Payment of '.$item['send_info']['quantity'].' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
 			}
 		}
 	}
