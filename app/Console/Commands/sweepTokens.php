@@ -115,8 +115,17 @@ class sweepTokens extends Command {
 				}
 				catch(Exception $e){
 					$this->error('Error priming: '.$e->getMessage());
+					sleep(2);
+					try{
+						$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
+														'BTC', $this->tx_fee/self::SATOSHI_MOD);
+					}
+					catch(Exception $e){
+						$this->error('Error priming (attempt 2): '.$e->getMessage());
+					}
 				}
 			}
+			sleep(2);
 		}
 		sleep(5);
 	}
