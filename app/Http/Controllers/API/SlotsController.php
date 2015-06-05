@@ -117,7 +117,7 @@ class SlotsController extends APIController {
 			}
 		}
 		$asset = strtoupper(trim($input['asset']));
-		$webook = null;
+		$webhook = null;
 		if(isset($input['webhook']) AND trim($input['webhook']) != ''){
 			$webhook = trim($input['webhook']);
 			if(!filter_var($webhook, FILTER_VALIDATE_URL)){
