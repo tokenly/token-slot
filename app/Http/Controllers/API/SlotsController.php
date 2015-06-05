@@ -118,7 +118,7 @@ class SlotsController extends APIController {
 		}
 		$asset = strtoupper(trim($input['asset']));
 		$webook = null;
-		if(isset($input['webhook'])){
+		if(isset($input['webhook']) AND trim($input['webhook']) != ''){
 			$webhook = trim($input['webhook']);
 			if(!filter_var($webhook, FILTER_VALIDATE_URL)){
 				$output = array('error' => 'Invalid webhook, please use a real URL');
@@ -211,7 +211,7 @@ class SlotsController extends APIController {
 						return Response::json($output, 400);
 					}					
 				}
-				if($field == 'webhook'){
+				if($field == 'webhook' AND trim($input[$field]) != ''){
 					if(!filter_var($input[$field], FILTER_VALIDATE_URL)){
 						$output = array('error' => 'Invalid webhook, please use a real URL');
 						return Response::json($output, 400);
