@@ -70,10 +70,10 @@ class SlotsController extends APIController {
 		
 		if(isset($input['incomplete'])){
 			if(boolval($input['incomplete'])){
-				$andComplete = true;
+				$andComplete = 0;
 			}
 			else{
-				$andComplete = false;
+				$andComplete = 1;
 			}
 			$payments = $payments->where('complete', '=', $andComplete);
 		}
@@ -109,7 +109,7 @@ class SlotsController extends APIController {
 	{
 		$user = User::$api_user;
 		$input = Input::all();
-		$required = array('asset', 'webhook');
+		$required = array('asset');
 		foreach($required as $req){
 			if(!isset($input[$req]) OR trim($input[$req]) == ''){
 				$output = array('error' => $req.' required');
@@ -117,7 +117,14 @@ class SlotsController extends APIController {
 			}
 		}
 		$asset = strtoupper(trim($input['asset']));
-		$webhook = trim($input['webhook']);
+		$webook = null;
+		if(isset($input['webhook'])){
+			$webhook = trim($input['webhook']);
+			if(!filter_var($webhook, FILTER_VALIDATE_URL)){
+				$output = array('error' => 'Invalid webhook, please use a real URL');
+				return Response::json($output, 400);
+			}
+		}
 		$address = null;
 		$min_conf = 0;
 		
@@ -203,6 +210,12 @@ class SlotsController extends APIController {
 						$output = array('error' => 'Invalid BTC address');
 						return Response::json($output, 400);
 					}					
+				}
+				if($field == 'webhook'){
+					if(!filter_var($input[$field], FILTER_VALIDATE_URL)){
+						$output = array('error' => 'Invalid webhook, please use a real URL');
+						return Response::json($output, 400);
+					}
 				}
 				$getSlot->$field = trim($input[$field]);
 				$fieldsUpdated++;

@@ -19,7 +19,7 @@ class CreateSlotsTable extends Migration {
 			$table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
 			$table->string('public_id')->unique();
 			$table->string('asset');
-			$table->string('webhook');
+			$table->string('webhook')->nullable();
 			$table->integer('min_conf')->default(0);
 			$table->string('forward_address', 40)->nullable();
 			$table->string('label')->nullable();

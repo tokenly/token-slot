@@ -79,25 +79,27 @@ class HookController extends Controller {
 						$save = $getPayment->save();
 						
 						if($save){
-							//send off a notification to the clients webhook
-							$caller = app('Tokenly\XcallerClient\Client');
-							$hookData = array();
-							$hookData['payment_id'] = $getPayment->id;
-							$hookData['slot_id'] = $getSlot->public_id;
-							$hookData['reference'] = $getPayment->reference;
-							$hookData['payment_address'] = $getPayment->address;
-							$hookData['asset'] = $getSlot->asset;
-							$hookData['total'] = Currency::satoshisToValue($getPayment->total);
-							$hookData['total_satoshis'] = $getPayment->total;
-							$hookData['received'] = Currency::satoshisToValue($totalReceived);
-							$hookData['received_satoshis'] = $totalReceived;
-							$hookData['confirmations'] = $leastConfirmed;							
-							$hookData['init_date'] = $getPayment->init_date;
-							$hookData['complete'] = boolval($getPayment->complete);
-							$hookData['complete_date'] = $getPayment->complete_date;
-							$hookData['tx_info'] = $tx_info;
-							
-							$sendWebhook = $caller->sendWebhook($hookData, $getSlot->webhook);
+							if(trim($getSlot->webhook) != ''){ //only send notification if they have an actual webhook set
+								//send off a notification to the clients webhook
+								$caller = app('Tokenly\XcallerClient\Client');
+								$hookData = array();
+								$hookData['payment_id'] = $getPayment->id;
+								$hookData['slot_id'] = $getSlot->public_id;
+								$hookData['reference'] = $getPayment->reference;
+								$hookData['payment_address'] = $getPayment->address;
+								$hookData['asset'] = $getSlot->asset;
+								$hookData['total'] = Currency::satoshisToValue($getPayment->total);
+								$hookData['total_satoshis'] = $getPayment->total;
+								$hookData['received'] = Currency::satoshisToValue($totalReceived);
+								$hookData['received_satoshis'] = $totalReceived;
+								$hookData['confirmations'] = $leastConfirmed;							
+								$hookData['init_date'] = $getPayment->init_date;
+								$hookData['complete'] = boolval($getPayment->complete);
+								$hookData['complete_date'] = $getPayment->complete_date;
+								$hookData['tx_info'] = $tx_info;
+								
+								$sendWebhook = $caller->sendWebhook($hookData, $getSlot->webhook);
+							}
 						}
 					 }
 				 }
