@@ -85,7 +85,7 @@ class createSlot extends Command {
 		return [
 			['email', InputArgument::REQUIRED, 'Client email'],
 			['asset', InputArgument::REQUIRED, 'Asset/Token to accept'],
-			['webhook', InputArgument::REQUIRED, 'Webhook to send payment data to'],
+			['webhook', InputArgument::OPTIONAL, 'Webhook to send payment data to'],
 			['label', InputArgument::OPTIONAL, 'Optional reference label',null],
 			['min_conf', InputArgument::OPTIONAL, 'Minimum confirmations required for payment completion',1],
 			['address', InputArgument::OPTIONAL, 'Specific forwarding address',null],
