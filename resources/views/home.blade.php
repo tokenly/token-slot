@@ -37,7 +37,7 @@
 				<li role="presentation"><a href="https://github.com/tokenly/token-slot" target="_blank" class="no-anchor"><i class="fa fa-github-alt"></i> Github</a></li>
 			  </ul>
 			</nav>
-			<h3 class="text-muted"><i class="fa fa-btc"></i> Tokenly</h3>
+			<h3 class="text-muted"><a href="https://letstalkbitcoin.com/blog/tokenly" target="_blank"><img src="images/tokenly-logo.png" alt="" style="width: 140px;" /></a></h3>
 		  </div>
 		</div>
 	</div>
@@ -65,18 +65,141 @@
 				This could be anything from a simple paywall or redemption for a physical product, to something more complex. 
 			</p>
 			<p>
-				Used in combination with <a href="https://github.com/tokenly/swapbot" target="_blank">SwapBot</a>, a
-				fully tokenized redeemable product ecosystem can emerge. [insert an interesting use case here]
+				Used in combination with <a href="https://github.com/tokenly/swapbot" target="_blank">SwapBot</a> and other Tokenly tools, a
+				fully tokenized redeemable product ecosystem can emerge. 
 			</p>
 			<hr>
 			<a name="usage"></a>
 			<h2>Basic Usage</h2>
 			<p>
-				<a href="https://letstalkbitcoin.com/tokenslot-demo" target="_blank">Click here</a> to view a basic front-end tech demo.
+				For integration into your application, we recommend you use one of our libraries for connecting to the Token Slot API.
+				Currently, we only have this library available in PHP (more languages coming soon). You can find the 
+				<a href="https://github.com/tokenly/tokenslot-client" target="_blank">standalone PHP class on github</a>.
+				You can also find a version adapted for the Tokenly CMS 
+				<a href="https://github.com/tokenly/tokenly-cms/blob/master/slick/API/TokenSlotClient.php" target="_blank">here</a>.
+			</p>
+			<h4>Getting Started</h4>
+			<p>
+				To get started, you will need to include the Client class in your project. You can use 
+				Composer, or just include the class file directly. 
 			</p>
 			<p>
-				[add in some basic code samples here]
+				Via Composer, include the following in your <em>composer.json</em> file.
 			</p>
+<pre>
+	"require": {
+		"tokenly/tokenslot-client": "dev-master@dev"
+	},
+</pre>
+			<p>
+				In your application, create a new instance of the TokenSlot-Client class. 
+			</p>
+<pre>
+	(if using composer package)
+	$tokenslot = new \Tokenly\TokenSlotClient\Client(API_URL, API_KEY);
+	
+	(if using Tokenly CMS)
+	$tokenslot  = new \API\TokenSlotClient(API_URL, API_KEY);
+</pre>
+			<p>
+				API_URL = https://slots.tokenly.com/api/v1<br>
+				API_KEY = your client API key
+			</p>
+			<h4>Creating Payment Requests</h4>
+			<p>
+				The primary functionality of Token Slot is as a means of accepting tokens as payment for something,
+				whether that be a physical product, a digital download, access to content or whatever else.
+				When a new order or redemption is created in your application, Token Slot generates a fresh bitcoin address, unique to the customer.
+				When the correct amount of tokens is received to the payment address, the payment request is marked as complete, and you may 
+				continue on to finalize the redemption (e.g, ship the product). All tokens received are regularly forwarded to 
+				an address of your choosing, twice a day. 
+			</p>
+			<p>
+				<Strong>Step 1:</Strong>
+			</p>
+			<p>
+				Before creating payment requests, you first need to create a "slot" for
+				accepting a specific type of token. This tells the system where you want this type of
+				token to go (if different than primary account forwarding address), how many confirmations
+				required before payments are considered complete, among other options. See the API reference below
+				for further details.
+			</p>
+			<p>
+				TokenSlot-Client provides a simple method for configuring a new slot before initializing new payments.
+			</p>
+<pre>
+	$slot_alias = 'myslot_alias';
+	$slot_token = 'TOKENLY';
+	$min_conf = 1;
+	$slot = $tokenslot->getOrCreateSlot($slot_alias, $token, $min_conf)
+</pre>
+			<p><br>
+				<strong>Step 2:</strong>
+			</p>
+			<p>
+				Initialize a new payment request:
+			</p>
+<pre>
+	//convert total to satoshi format by multiplying by 100,000,000
+	$total = 1 * SATOSHI_MOD; 
+	$create_payment = $tokenslot->newPayment($slot['public_id'], $total);
+	if($create_payment){
+		$payment_id = $create_payment['payment_id'];
+		$payment_address = $create_payment['address'];
+		//save this information somewhere and display address to customer
+	}
+	else{
+		//payment request failed
+	}
+</pre>
+			<p><br>
+				<strong>Step 3:</strong>
+			</p>
+			<p>
+				After a payment request is created, there are two ways that you can check if 
+				the customer has completed their payment.
+			</p>
+			<p>
+				The first method is by simply querying the API.
+			</p>
+<pre>
+	$check_complete = $tokenslot->checkPaymentComplete($payment_address);
+	if($check_complete){
+		//complete the order
+	}
+	else{
+		//they have not paid the full amount yet
+	}
+
+</pre>
+			<p>
+				The second method is by using webhooks. This requires the "webhook" field in your slot to be configured.
+				Token Slot will post a notification (in JSON format) to your defined webhook whenever it sees a new incoming payment,
+				or that payment has gained new network confirmations. 
+			</p>
+<pre>
+	$process_webhook = $tokenslot->receivePaymentsWebhook();
+	if($process_webhook){
+		//make sure data matches up to a pending redemption in your local database
+		
+		if($process_webhook['complete']){
+			//complete order logic
+		}
+		else{
+			//order not yet paid or not enough confirmations
+		}
+	}
+
+</pre>
+<br>
+			<h4>Demos</h4>
+			<p>
+				<a href="https://letstalkbitcoin.com/tokenslot-demo" target="_blank">Click here</a> to view a basic front-end tech demo. (<a href="https://github.com/tokenly/tokenly-cms/blob/master/slick/Tags/TokenSlotDemo.php" target="_blank">view source code</a>)
+			</p>
+			<p>
+				Multiple token redemption w/ email notification (coming shortly)
+			</p>
+
 			<hr>
 			<a name="api"></a>
 			<h2>API Reference</h2>
@@ -213,7 +336,7 @@
 						<strong>Parameters:</strong>
 						<ul>
 							<li>asset (string)</li>
-							<li>webhook (string)</li>
+							<li>webhook (string) - optional</li>
 							<li>forward_address (string) - optional</li>
 							<li>min_conf (integer) - optional (defaults 0)</li>
 							<li>label (string) - optional</li>
