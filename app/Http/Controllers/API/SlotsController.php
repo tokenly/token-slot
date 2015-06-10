@@ -247,12 +247,12 @@ class SlotsController extends APIController {
 							$old = trim($input[$field]);
 							$input[$field] = array();
 							if($old != ''){
-								$input[$field][] = array($old);
+								$input[$field][] = $old;
 							}
 						}
 					}
-					foreach($input[$field] as &$token){
-						$token = strtoupper($token);
+					foreach($input[$field] as $tk => $tv){
+						$input[$field][$tk] = strtoupper($tv);
 					}
 					
 					$xchain = xchain(); 
