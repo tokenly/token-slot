@@ -151,7 +151,7 @@ class SlotsController extends APIController {
 			foreach($input['tokens'] as $token){
 				$checkAsset = $xchain->getAsset($token);
 				if(!$checkAsset){
-					throw new Exception('Invalid Asset');
+					throw new Exception('Could not get asset');
 				}				
 			}
 		}
