@@ -118,7 +118,13 @@ class SlotsController extends APIController {
 				return Response::json($output, 400);
 		}
 		if(!is_array($input['tokens'])){
-			$input['tokens'] = array(trim($input['tokens']));
+			$decode_tokens = json_decode($input['tokens'], true);
+			if(is_array($decode_tokens)){
+				$input['tokens'] = $decode_tokens;
+			}
+			else{
+				$input['tokens'] = array(trim($input['tokens']));
+			}
 		}
 		foreach($input['tokens'] as &$token){
 			$token = strtoupper($token);
@@ -233,10 +239,16 @@ class SlotsController extends APIController {
 				if($field == 'tokens'){
 					//do some extra validation on tokens
 					if(!is_array($input[$field])){
-						$old = trim($input[$field]);
-						$input[$field] = array();
-						if($old != ''){
-							$input[$field][] = array($old);
+						$decode_tokens = json_decode($input[$field], true);
+						if(is_array($decode_tokens)){
+							$input[$field] = $decode_tokens;
+						}
+						else{
+							$old = trim($input[$field]);
+							$input[$field] = array();
+							if($old != ''){
+								$input[$field][] = array($old);
+							}
 						}
 					}
 					foreach($input[$field] as &$token){
