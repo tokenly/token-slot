@@ -28,6 +28,18 @@ class PaymentController extends APIController {
             $message = "Invalid slot ID";
 			return Response::json(array('error' => $message), 400);
 		}
+		
+		$getSlot->tokens = json_decode($getSlot->tokens, true);
+		if(!is_array($getSlot->tokens)){
+            $message = "Slot accepted token list invalid";
+			return Response::json(array('error' => $message), 400);
+		}
+		
+		if(!isset($input['token']) OR !in_array(strtoupper(trim($input['token'])), $getSlot->tokens)){
+            $message = "Token ".$input['token']." not accepted by this slot";
+			return Response::json(array('error' => $message), 400);	
+		}
+		$input['token'] = strtoupper(trim($input['token']));
 
 		//initialize xchain client
 		$xchain = xchain();
@@ -60,6 +72,7 @@ class PaymentController extends APIController {
 		$payment = new Payment;
 		$payment->slotId = $getSlot->id;
 		$payment->address = $address['address']; 
+		$payment->token = $input['token'];
 		$payment->total = $total;
 		$payment->init_date = $time;
 		$payment->IP = $_SERVER['REMOTE_ADDR'];
@@ -186,7 +199,7 @@ class PaymentController extends APIController {
 			$payments = $payments->where('cancelled', '!=', '1');
 		}
 		
-		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
+		$payments = $payments->select('id', 'address', 'token', 'total', 'received', 'complete', 'init_date', 'complete_date',
 							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time')->get();
 					
 		foreach($payments as &$payment){

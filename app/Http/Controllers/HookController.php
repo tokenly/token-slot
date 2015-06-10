@@ -23,7 +23,11 @@ class HookController extends Controller {
 				 if($generateNonce == intval(Input::get('nonce'))){
 					 //check for proper asset
 					 $getSlot = Slot::find($getPayment->slotId);
-					 if($getSlot->asset == $input['asset']){
+					 $getSlot->tokens = json_decode($getSlot->tokens, true);
+					 if(!is_array($getSlot->tokens)){
+						 $getSlot->tokens = array();
+					 }
+					 if($getPayment->token == $input['asset'] AND in_array($input['asset'], $getSlot->tokens)){
 						 $tx_info = json_decode($getPayment->tx_info, true);
 						 $found = false;
 						 if(is_array($tx_info)){
@@ -87,7 +91,7 @@ class HookController extends Controller {
 								$hookData['slot_id'] = $getSlot->public_id;
 								$hookData['reference'] = $getPayment->reference;
 								$hookData['payment_address'] = $getPayment->address;
-								$hookData['asset'] = $getSlot->asset;
+								$hookData['asset'] = $getPayment->token;
 								$hookData['total'] = Currency::satoshisToValue($getPayment->total);
 								$hookData['total_satoshis'] = $getPayment->total;
 								$hookData['received'] = Currency::satoshisToValue($totalReceived);

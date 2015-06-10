@@ -129,9 +129,9 @@
 			</p>
 <pre>
 	$slot_alias = 'myslot_alias';
-	$slot_token = 'TOKENLY';
+	$accepted_tokens = array('TOKENLY');
 	$min_conf = 1;
-	$slot = $tokenslot->getOrCreateSlot($slot_alias, $token, $min_conf)
+	$slot = $tokenslot->getOrCreateSlot($slot_alias, $accepted_tokens, $min_conf)
 </pre>
 			<p><br>
 				<strong>Step 2:</strong>
@@ -142,7 +142,8 @@
 <pre>
 	//convert total to satoshi format by multiplying by 100,000,000
 	$total = 1 * SATOSHI_MOD; 
-	$create_payment = $tokenslot->newPayment($slot['public_id'], $total);
+	$payment_token = 'TOKENLY';
+	$create_payment = $tokenslot->newPayment($slot['public_id'], $payment_token, $total);
 	if($create_payment){
 		$payment_id = $create_payment['payment_id'];
 		$payment_address = $create_payment['address'];
@@ -233,13 +234,18 @@
 						<strong>Request method:</strong> GET<br>
 						<strong>Parameters:</strong>
 						<ul>
+							<li>token (string)</li>
 							<li>total (integer) - optional</li>
 							<li>reference (string) - optional</li>
 						</ul>
 						<strong>Returns:</strong>
 						<ul>
 							<li>Payment Request Object</li>
-						</ul>						
+						</ul>
+						<p>
+							The <em>token</em> you wish to accept for this payment request must be
+							in the list of accepted tokens for your slot. 
+						</p>						
 						<p>
 							The <em>total</em> field should be the total amount of the order, in satoshis.
 							If total is set to 0, it assumes a "pay what you want" type situation, and any 
@@ -335,7 +341,7 @@
 						<strong>Request method:</strong> POST<br>
 						<strong>Parameters:</strong>
 						<ul>
-							<li>asset (string)</li>
+							<li>tokens (array)</li>
 							<li>webhook (string) - optional</li>
 							<li>forward_address (string) - optional</li>
 							<li>min_conf (integer) - optional (defaults 0)</li>
@@ -347,8 +353,8 @@
 							<li>Slot Object</li>
 						</ul>
 						<p>
-							The <em>asset</em> field can be either BTC, or any token built on Counterparty, including XCP.
-							This is the token that your "slot" will accept.
+							The <em>tokens</em> field is an array of tokens which this slot will accept.
+							They can be either BTC, or any token built on Counterparty, including XCP.
 						</p>
 						<p>
 							<em>webhook</em> is the URL that you want the Token Slot service to send payment notifications to.
@@ -400,6 +406,7 @@
 						<strong>Request method:</strong> PATCH<br>
 						<strong>Parameters:</strong>
 						<ul>
+							<li>tokens (array) - optional</li>
 							<li>webhook (string) - optional</li>
 							<li>min_conf (integer) - optional</li>
 							<li>forward_address (string) - optional</li>
@@ -535,6 +542,7 @@
 						<ul>
 							<li>id (integer)</li>
 							<li>address (string)</li>
+							<li>token (string)</li>
 							<li>total (integer)</li>
 							<li>received (integer)</li>
 							<li>complete (boolean)</li>
@@ -559,6 +567,7 @@
 {
     "id": 14,
     "address": "1NVvfJeysGF7ZwT75aNzuY7oyYwZDMQnXF",
+    "token": "LTBCOIN",
     "total": 100000000,
     "received": 0,
     "complete": false,
@@ -577,7 +586,7 @@
 						<strong>Fields:</strong>
 						<ul>
 							<li>public_id (string)</li>
-							<li>asset (string)</li>
+							<li>tokens (array)</li>
 							<li>webhook (string)</li>
 							<li>min_conf (integer)</li>
 							<li>forward_address (string)</li>
@@ -593,7 +602,9 @@
 						<pre>
 {
     "public_id": "znCFvFzeldWHF9BePxBv",
-    "asset": "COFFEEPOUND",
+	"tokens": [
+		"TOKENLY"
+	],
     "webhook": "https://example.org/tokenslot-hook",
     "min_conf": 1,
     "forward_address": "1KthnhXAWmD6TuyjK3KbswVWvkuK3i2Keq",

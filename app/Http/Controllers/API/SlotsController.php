@@ -18,11 +18,12 @@ class SlotsController extends APIController {
 	{
 		$user = User::$api_user;
 		$slots = Slot::where('userId', '=', $user->id)
-				->select('public_id','asset','webhook','min_conf','forward_address',
+				->select('public_id','tokens','webhook','min_conf','forward_address',
 						'label', 'nickname', 'created_at', 'updated_at')
 				->get();
 		foreach($slots as &$slot){
 			$slot->min_conf = intval($slot->min_conf);
+			$slot->tokens = json_decode($slot->tokens, true);
 		}
 		return Response::json($slots);
 	}
@@ -38,7 +39,7 @@ class SlotsController extends APIController {
 		$slot = Slot::where('userId', '=', $user->id)
 				->where('public_id', '=', $slotId)
 				->orWhere('nickname', '=', $slotId)
-				->select('public_id','asset','webhook','min_conf','forward_address',
+				->select('public_id','tokens','webhook','min_conf','forward_address',
 						 'label', 'nickname', 'created_at', 'updated_at')
 				->first();
 		if(!$slot){
@@ -46,6 +47,7 @@ class SlotsController extends APIController {
 			return Response::json($output, 400);
 		}
 		$slot->min_conf = intval($slot->min_conf);
+		$slot->tokens = json_decode($slot->tokens, true);
 		return Response::json($slot);
 	}
 	
@@ -86,7 +88,7 @@ class SlotsController extends APIController {
 		if(!$andCancel){
 			$payments = $payments->where('cancelled', '!=', '1');
 		}		
-		$payments = $payments->select('id', 'address', 'total', 'received', 'complete', 'init_date', 'complete_date',
+		$payments = $payments->select('id', 'address', 'asset', 'total', 'received', 'complete', 'init_date', 'complete_date',
 							 'reference', 'tx_info', 'cancelled', 'cancel_time')
 					->get();
 		foreach($payments as &$payment){
@@ -109,14 +111,19 @@ class SlotsController extends APIController {
 	{
 		$user = User::$api_user;
 		$input = Input::all();
-		$required = array('asset');
-		foreach($required as $req){
-			if(!isset($input[$req]) OR trim($input[$req]) == ''){
-				$output = array('error' => $req.' required');
+		$required = array('tokens');
+		if(!isset($input['tokens']) OR (!is_array($input['tokens']) AND trim($input['tokens']) == '') 
+			OR (is_array($input['tokens']) AND count($input['tokens']) == 0)){
+				$output = array('error' => 'tokens required');
 				return Response::json($output, 400);
-			}
 		}
-		$asset = strtoupper(trim($input['asset']));
+		if(!is_array($input['tokens'])){
+			$input['tokens'] = array(trim($input['tokens']));
+		}
+		foreach($input['tokens'] as &$token){
+			$token = strtoupper($token);
+		}
+
 		$webhook = null;
 		if(isset($input['webhook']) AND trim($input['webhook']) != ''){
 			$webhook = trim($input['webhook']);
@@ -138,9 +145,15 @@ class SlotsController extends APIController {
 			}		
 		}
 			
-		$xchain = xchain(); //check if asset is real
+		//check if assets are real
+		$xchain = xchain(); 
 		try{
-			$checkAsset = $xchain->getAsset($asset);
+			foreach($input['tokens'] as $token){
+				$checkAsset = $xchain->getAsset($token);
+				if(!$checkAsset){
+					throw new Exception('Invalid Asset');
+				}				
+			}
 		}
 		catch(Exception $e){
 			$output = array('error' => 'Invalid Asset');
@@ -158,7 +171,7 @@ class SlotsController extends APIController {
 		$slot = new Slot;
 		$slot->userId = $user->id;
 		$slot->public_id = str_random(20);
-		$slot->asset = $asset;
+		$slot->tokens = json_encode($input['tokens']);
 		$slot->webhook = $webhook;
 		$slot->min_conf = $min_conf;
 		$slot->forward_address = $address;
@@ -171,7 +184,7 @@ class SlotsController extends APIController {
 		$save = $slot->save();
 		$output = array();
 		$output['public_id'] = $slot->public_id;
-		$output['asset'] = $slot->asset;
+		$output['tokens'] = $input['tokens'];
 		$output['webhook'] = $slot->webhook;
 		$output['min_conf'] = $slot->min_conf;
 		$output['forward_address'] = $slot->forward_address;
@@ -198,7 +211,7 @@ class SlotsController extends APIController {
 			$output = array('error' => 'Invalid slot ID');
 			return Response::json($output, 400);
 		}
-		$updateable = array('webhook', 'min_conf', 'forward_address', 'label', 'nickname');
+		$updateable = array('tokens', 'webhook', 'min_conf', 'forward_address', 'label', 'nickname');
 		$fieldsUpdated = 0;
 		foreach($updateable as $field){
 			if(isset($input[$field])){
@@ -217,7 +230,39 @@ class SlotsController extends APIController {
 						return Response::json($output, 400);
 					}
 				}
-				$getSlot->$field = trim($input[$field]);
+				if($field == 'tokens'){
+					//do some extra validation on tokens
+					if(!is_array($input[$field])){
+						$old = trim($input[$field]);
+						$input[$field] = array();
+						if($old != ''){
+							$input[$field][] = array($old);
+						}
+					}
+					foreach($input[$field] as &$token){
+						$token = strtoupper($token);
+					}
+					
+					$xchain = xchain(); 
+					try{
+						foreach($input[$field] as $token){
+							$checkAsset = $xchain->getAsset($token);
+							if(!$checkAsset){
+								throw new Exception('Invalid Asset');
+							}
+						}
+					}
+					catch(Exception $e){
+						$output = array('error' => 'Invalid Asset');
+						return Response::json($output, 400);
+					}			
+					$getSlot->$field = json_encode($input[$field]);		
+					
+				}
+				else{
+					//normal field update
+					$getSlot->$field = trim($input[$field]);
+				}
 				$fieldsUpdated++;
 			}
 		}
@@ -232,7 +277,7 @@ class SlotsController extends APIController {
 		}
 		$output = array();
 		$output['public_id'] = $getSlot->public_id;
-		$output['asset'] = $getSlot->asset;
+		$output['tokens'] = json_decode($getSlot->tokens, true);
 		$output['webhook'] = $getSlot->webhook;
 		$output['min_conf'] = $getSlot->min_conf;
 		$output['forward_address'] = $getSlot->forward_address;

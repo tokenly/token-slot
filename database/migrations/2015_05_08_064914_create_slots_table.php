@@ -18,7 +18,7 @@ class CreateSlotsTable extends Migration {
 			$table->integer('userId')->unsigned();
 			$table->foreign('userId')->references('id')->on('users')->onDelete('cascade');
 			$table->string('public_id')->unique();
-			$table->string('asset');
+			$table->text('tokens');
 			$table->string('webhook')->nullable();
 			$table->integer('min_conf')->default(0);
 			$table->string('forward_address', 40)->nullable();
