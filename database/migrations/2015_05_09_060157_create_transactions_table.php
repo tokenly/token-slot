@@ -20,7 +20,7 @@ class CreateTransactionsTable extends Migration {
 			$table->string('type'); //e.g send, receive
 			$table->string('asset'); //e.g BTC, LTBCOIN
 			$table->string('protocol')->default('btc');
-			$table->integer('quantity')->default(0); //in satoshis
+			$table->bigInteger('quantity')->default(0); //in satoshis
 			$table->integer('block_index');
 			$table->dateTime('tx_time');
 			$table->index('tx_id');

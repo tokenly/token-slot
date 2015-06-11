@@ -18,8 +18,8 @@ class CreatePaymentRequestsTable extends Migration {
 			$table->foreign('slotId')->references('id')->on('slots')->onDelete('cascade'); //the slot tells us what asset to check
 			$table->string('address')->unique(); //each payment address should be unique
 			$table->string('token');
-			$table->integer('total')->default(0); //order total in satoshis
-			$table->integer('received')->default(0);//total seen so far, in satoshis
+			$table->bigInteger('total')->default(0); //order total in satoshis
+			$table->bigInteger('received')->default(0);//total seen so far, in satoshis
 			$table->boolean('complete')->default(0);
 			$table->dateTime('init_date');
 			$table->dateTime('complete_date')->nullable();
