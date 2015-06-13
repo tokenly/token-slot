@@ -32,7 +32,8 @@ class Payment extends Model
 							  })
 							  ->select('id', 'slotId', 'address', 'total', 'received',
 									   'complete', 'init_date', 'complete_date',
-									   'tx_info', 'reference', 'cancelled', 'cancel_time')
+									   'tx_info', 'reference', 'cancelled', 'cancel_time',
+									   'monitor_uuid', 'payment_uuid')
 							  ->first();	
 		return $get;
 		
