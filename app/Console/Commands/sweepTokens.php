@@ -70,7 +70,7 @@ class sweepTokens extends Command {
 	protected function sendTokens($payments)
 	{
 		foreach($payments as &$item){
-			$token = $item['slot']->asset;
+			$token = $item['payment']->token;
 			$address = $item['forward_address'];
 			$send = false;
 			try{
@@ -99,6 +99,7 @@ class sweepTokens extends Command {
 				$item['send_info'] = $send;
 			}
 			else{
+				$this->error('Unkown error sending tokens');
 				$item['send_info'] = false;
 			}
 		}
@@ -137,7 +138,7 @@ class sweepTokens extends Command {
 		$btc_needed = 0;
 		$perFee = $this->tx_fee + $this->tx_dust;
 		foreach($list as $k => &$item){
-			$asset = $item['slot']->asset;
+			$asset = $item['payment']->token;
 			$item['prime_btc'] = 0;
 			$item['sweep_outputs'] = false;
 			
@@ -161,6 +162,7 @@ class sweepTokens extends Command {
 			}
 			if(!$found){
 				unset($list[$k]);
+				$this->error('Payment balance not found for '.$item['payment']['address']);
 				continue;
 			}
 			$tx_count++;
