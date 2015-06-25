@@ -77,9 +77,7 @@ class sweepTokens extends Command {
 				if($token == 'BTC'){
 					if($item['sweep_outputs']){
 						//BTC payment.. sweep it all to their address
-						$send = $this->xchain->sweepBTC($item['payment']->payment_uuid, $address,
-													$balance/self::SATOSHI_MOD,  $this->tx_fee/self::SATOSHI_MOD, true);
-
+						$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address, $this->tx_fee/self::SATOSHI_MOD, true);
 					}
 				}
 				else{
