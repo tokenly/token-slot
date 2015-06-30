@@ -222,7 +222,7 @@ class SlotsController extends APIController {
 		foreach($updateable as $field){
 			if(isset($input[$field])){
 				if($field == 'min_conf'){
-					$input[$field] = intval($input['field']);
+					$input[$field] = intval($input[$field]);
 				}
 				if($field == 'forward_address'){
 					if(!AddressValidator::isValid($input[$field])){
