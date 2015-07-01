@@ -35,7 +35,12 @@ class PaymentController extends APIController {
 			return Response::json(array('error' => $message), 400);
 		}
 		
-		if(!isset($input['token']) OR (isset($input['token']) AND !in_array(strtoupper(trim($input['token'])), $getSlot->tokens))){
+		if(!isset($input['token'])){
+            $message = "Payment token name required";
+			return Response::json(array('error' => $message), 400);
+		}
+		
+		if((isset($input['token']) AND !in_array(strtoupper(trim($input['token'])), $getSlot->tokens))){
             $message = "Token ".$input['token']." not accepted by this slot";
 			return Response::json(array('error' => $message), 400);	
 		}
