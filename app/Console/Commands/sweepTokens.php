@@ -138,7 +138,7 @@ class sweepTokens extends Command {
 		$list = $payments;
 		$tx_count = 0;
 		$btc_needed = 0;
-		$perFee = $this->tx_fee + $this->tx_dust;
+		$perFee = ($this->tx_fee + $this->tx_dust) * 2;
 		foreach($list as $k => &$item){
 			$asset = $item['payment']->token;
 			$item['prime_btc'] = 0;
