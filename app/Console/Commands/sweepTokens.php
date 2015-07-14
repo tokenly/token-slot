@@ -70,7 +70,7 @@ class sweepTokens extends Command {
 	
 	protected function sendTokens($payments)
 	{
-		foreach($payments as &$item){
+		foreach($payments as $k => $item){
 			$token = $item['payment']->token;
 			$address = $item['forward_address'];
 			$send = false;
@@ -101,6 +101,7 @@ class sweepTokens extends Command {
 				$this->error('Unkown error sending tokens');
 				$item['send_info'] = false;
 			}
+			$payments[$k] = $item;
 		}
 		return $payments;
 	}
