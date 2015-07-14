@@ -84,8 +84,7 @@ class sweepTokens extends Command {
 				else{
 					$balance = $item['balances'][$token];
 					$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-												$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD,
-												$this->tx_dust);
+												$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
 												
 				}
 			}
