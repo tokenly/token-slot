@@ -36,6 +36,7 @@ class sweepTokens extends Command {
 		$this->tx_dust = Config::get('settings.sweep_tx_dust');
 		$this->fuel_source = Config::get('settings.sweep_fuel_source');
 		$this->fuel_source_id = Config::get('settings.sweep_fuel_source_uuid');
+		$this->min_fuel_cost = Config::get('settings.min_fuel_cost');
 	}
 
 	/**
@@ -108,6 +109,9 @@ class sweepTokens extends Command {
 	{
 		foreach($payments as $item){
 			if($item['prime_btc'] > 0){
+				if($item['prime_btc'] < $this->min_fuel_cost){
+					$item['prime_btc'] = $this->min_fuel_cost;
+				}
 				try{
 					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
 													'BTC', $this->tx_fee/self::SATOSHI_MOD);
