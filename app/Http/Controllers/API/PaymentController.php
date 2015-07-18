@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use User, Slot, Input, Response, Payment;
+use User, Slot, Input, Response, Payment, Config;
 
 class PaymentController extends APIController {
 	
@@ -45,6 +45,86 @@ class PaymentController extends APIController {
 			return Response::json(array('error' => $message), 400);	
 		}
 		$input['token'] = strtoupper(trim($input['token']));
+		
+		/*** Begin pegging code ***/
+		//validators for peg options
+		//start with the valid flags FALSE
+		//we will validate if we receive these options in the input
+		$valid_peg = FALSE;
+		$valid_peg_total = FALSE;
+		$valid_peg_calculated = FALSE;
+		$peg = '';
+		$peg_total = '';
+		
+		if(isset($input['peg'])){
+			$peg = strtoupper(trim($input['peg']));
+			if($peg == 'USD'){
+				$valid_peg = TRUE;
+			}
+			else{
+				$message = "Pegging API only supports USD, ".$peg." is invalid";
+				return Response::json(array('error' => $message), 400);
+			}
+		}
+
+		if(isset($input['peg_total'])){
+			$peg_total = intval($input['peg_total']);
+			if($peg_total > 0){
+				$valid_peg_total = TRUE;                        
+			}
+		}
+
+		if($valid_peg === TRUE AND $valid_peg_total === TRUE){
+			//the list of tokens we can peg to USD
+			$peg_tokens_list = explode(',', Config::get('settings.peggable_tokens'));
+
+			//make sure it's a token we can peg
+			if(!in_array($input['token'],$peg_tokens_list)){
+				$message = 'Pegging not supported with '.$input['token'].'. Supported tokens: '.join(', ', $peg_tokens_list);
+				return Response::json(array('error' => $message), 400);
+			}
+
+			$quotebot_url = env('QUOTEBOT_URL','http://localhost');
+
+			//we pull real time price data from quotebot
+			$quotebot_response = file($quotebot_url);
+			$quotebot_json_data = json_decode($quotebot_response[0]);
+			if(!is_object($quotebot_json_data)){
+				$message = 'Error retrieving token price quotes';
+				return Response::json(array('error' => $message), 400);
+			}
+			$quotes = $quotebot_json_data->{'quotes'};
+
+			foreach($quotes as $quote){
+				//first find the USD:BTC price in cents
+				if($quote->{'source'} == 'bitcoinAverage'){
+					$usd_btc_cents = $quote->{'last'} * 100;
+				}
+				//now find the BTC price for our token
+				list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
+				if($order_currency == $input['token']){
+					//find the BTC satoshis for our peg total
+					$btc_satoshis = ($peg_total/$usd_btc_cents) * 100000000;
+					$token_price_satoshis = $quote->{'last'};
+					//finally, figure out satoshis of the token
+					$pegged_satoshis = intval(($btc_satoshis / $token_price_satoshis * 100000000));
+				}
+			}
+			//this line feeds a value into the "total" processing code about 20 lines down
+			$input['total'] = $pegged_satoshis;
+		}
+		elseif($valid_peg === TRUE AND $valid_peg_total === FALSE){
+			$message = "Gave a valid peg, but peg_total ".$peg_total." is invalid";
+			return Response::json(array('error' => $message), 400);
+		}
+		elseif($valid_peg === FALSE AND $valid_peg_total === TRUE){
+			$message = "Gave a valid peg_total, but peg ".$peg." is invalid";
+			return Response::json(array('error' => $message), 400);
+		}
+		else{
+			//no peg options given, do nothing
+		}
+		/*** End pegging code ***/
 
 		//initialize xchain client
 		$xchain = xchain();
@@ -57,6 +137,7 @@ class PaymentController extends APIController {
 		}
 		
 		$total = 0; //allow for 0 total for "pay what you want" type situations
+		//the pegging code about 20 lines above feeds into here when valid peg input is provided
 		//totals should be in satoshis (or just plain number if non-divisible asset)
 		if(isset($input['total'])){
 			$total = intval($input['total']);
@@ -95,6 +176,11 @@ class PaymentController extends APIController {
 		//setup the response
 		$output['payment_id'] = $payment->id;
 		$output['address'] = $payment->address;
+		//optional code to provide the pegged tokens if valid peg input was given
+		if($valid_peg === TRUE AND $valid_peg_total === TRUE){
+		        $output['total'] = $total;
+		}
+
 		
 		return Response::json($output);
 	}
@@ -223,3 +309,4 @@ class PaymentController extends APIController {
 		return Response::json($payments);
 	}	
 }
+
