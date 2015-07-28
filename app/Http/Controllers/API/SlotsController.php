@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use LinusU\Bitcoin\AddressValidator;
 use User, Slot, Input, Response, Payment;
+use Log;
 
 class SlotsController extends APIController {
 	
@@ -162,6 +163,7 @@ class SlotsController extends APIController {
 			}
 		}
 		catch(Exception $e){
+			Log::error($e->getMessage().' ('.__FUNCTION__.')');
 			$output = array('error' => 'Invalid Asset');
 			return Response::json($output, 400);
 		}
@@ -265,6 +267,7 @@ class SlotsController extends APIController {
 						}
 					}
 					catch(Exception $e){
+						Log::error($e->getMessage().' ('.__FUNCTION__.')');
 						$output = array('error' => 'Invalid Asset');
 						return Response::json($output, 400);
 					}			
