@@ -200,7 +200,6 @@
 			<p>
 				Multiple token redemption w/ email notification (coming shortly)
 			</p>
-
 			<hr>
 			<a name="api"></a>
 			<h2>API Reference</h2>
@@ -237,6 +236,8 @@
 							<li>token (string)</li>
 							<li>total (integer) - optional</li>
 							<li>reference (string) - optional</li>
+							<li>peg (string) - optional</li>
+							<li>peg_value (integer) - optional
 						</ul>
 						<strong>Returns:</strong>
 						<ul>
@@ -254,6 +255,16 @@
 						<p>
 							The <em>reference</em> field can be used to store a custom identifier
 							for the payment request, and should be unique per payment.
+						</p>
+						<p>
+							You may use the <em>peg</em> and <em>peg_total</em> fields to create a payment request
+							where the total value is pegged to the price of some other token or currency.
+							For example, if you set token = LTBCOIN, peg = USD and peg_value = 1000, a <em>total</em> will be automatically generated 
+							for the equivilant of $10.00 worth of LTBCOIN. Cryptocurrency peg values should be measured in satoshis, and Fiat values
+							in cents. The <em>total</em> does not need to be included when using pegged prices, since it is generated for you.
+						</p>
+						<p>
+							A list of supported peggable tokens and currencies can be found <a href="https://github.com/tokenly/token-slot/blob/master/config/settings.php" target="_blank">here</a>.
 						</p>
 						<p>
 							The <em>{slot_id}</em> in the endpoint URL can be either the slot's unique ID or
@@ -525,14 +536,23 @@
 						<ul>
 							<li>payment_id (integer)</li>
 							<li>address (string)</li>
+							<li>total (integer)*</li>
+							<li>peg (string)*</li>
+							<li>peg_value (integer)*</li>
 						</ul>
 						<strong>Sample JSON:</strong>
 						<pre>
 {
     "payment_id": 34,
-    "address": "1CooQ7k4gApPeYsywTy5dpmBuB9Yqt9o3c"
+    "address": "1CooQ7k4gApPeYsywTy5dpmBuB9Yqt9o3c",
+    "total": 6366183636363,
+    "peg": "USD",
+    "peg_value": 1000    
 }
-						</pre>							
+						</pre>	
+						<p>
+							<em>*note - total, peg and peg_value fields only available when using the price pegging feature</em>
+						</p>						
 					</div>
 				</li>
 				<li>
@@ -545,6 +565,8 @@
 							<li>token (string)</li>
 							<li>total (integer)</li>
 							<li>received (integer)</li>
+							<li>peg (string)</li>
+							<li>peg_value (integer)</li>
 							<li>complete (boolean)</li>
 							<li>init_date (timestamp)</li>
 							<li>complete_date (timestamp)</li>
@@ -562,6 +584,9 @@
 						<p>
 							The <em>total</em> and <em>received</em> fields are demoninated in satoshis.
 						</p>
+						<p>
+							The <em>peg</em> is empty unless price pegging feature used. <em>peg_value</em> measured in satoshis or cents (depending on the peg)
+						</p>
 						<strong>Sample JSON:</strong>
 						<pre>
 {
@@ -569,6 +594,8 @@
     "address": "1NVvfJeysGF7ZwT75aNzuY7oyYwZDMQnXF",
     "token": "LTBCOIN",
     "total": 100000000,
+    "peg": "",
+    "peg_value": 0
     "received": 0,
     "complete": false,
     "init_date": "2015-05-14 14:32:04",
