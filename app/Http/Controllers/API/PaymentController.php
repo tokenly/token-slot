@@ -55,36 +55,47 @@ class PaymentController extends APIController {
 		$valid_peg_calculated = FALSE;
 		$peg = '';
 		$peg_total = '';
+		$peg_tokens_list = Config::get('settings.peggable_tokens');
+		$peg_currencies = Config::get('settings.peg_currencies');
+		$peg_currency_denoms = Config::get('settings.peg_currency_denoms');
+		$peg_token_aliases = Config::get('settings.peggable_token_aliases');
+		$SATOSHI_MOD = 100000000;
 		
-		if(isset($input['peg'])){
+		if(isset($input['peg']) AND trim($input['peg']) != ''){
 			$peg = strtoupper(trim($input['peg']));
-			if($peg == 'USD'){
+			if(in_array($peg, $peg_currencies)){
 				$valid_peg = TRUE;
 			}
 			else{
-				$message = "Pegging API only supports USD, ".$peg." is invalid";
+				$message = "Pegging API only supports ".join(', ',$peg_currencies).", ".$peg." is invalid";
 				return Response::json(array('error' => $message), 400);
 			}
+			if(isset($input['peg_total'])){
+				$peg_decimal = 100;
+				if(isset($peg_currency_denoms[$peg])){
+					$peg_decimal = $peg_currency_denoms[$peg];
+				}
+				$peg_total = intval($input['peg_total']) / $peg_decimal;
+				if($peg_total > 0){
+					$valid_peg_total = TRUE;                        
+				}
+			}		
 		}
-
-		if(isset($input['peg_total'])){
-			$peg_total = intval($input['peg_total']);
-			if($peg_total > 0){
-				$valid_peg_total = TRUE;                        
-			}
-		}
-
 		if($valid_peg === TRUE AND $valid_peg_total === TRUE){
 			//the list of tokens we can peg to USD
-			$peg_tokens_list = explode(',', Config::get('settings.peggable_tokens'));
+			
+			$input_peg_token = $input['token'];
+			if(isset($peg_token_aliases[$input_peg_token])){
+				$input_peg_token = $peg_token_aliases[$input_peg_token];
+			}
 
 			//make sure it's a token we can peg
-			if(!in_array($input['token'],$peg_tokens_list)){
-				$message = 'Pegging not supported with '.$input['token'].'. Supported tokens: '.join(', ', $peg_tokens_list);
+			if(!in_array($input_peg_token,$peg_tokens_list)){
+				$message = 'Pegging not supported with '.$input_peg_token.'. Supported tokens: '.join(', ', $peg_tokens_list);
 				return Response::json(array('error' => $message), 400);
 			}
 
-			$quotebot_url = env('QUOTEBOT_URL','http://localhost');
+			$quotebot_url = env('QUOTEBOT_URL');
 
 			//we pull real time price data from quotebot
 			$quotebot_response = file($quotebot_url);
@@ -94,22 +105,40 @@ class PaymentController extends APIController {
 				return Response::json(array('error' => $message), 400);
 			}
 			$quotes = $quotebot_json_data->{'quotes'};
-
+			$pegged_satoshis = 0;
+			$fiat_btc = 0;
 			foreach($quotes as $quote){
-				//first find the USD:BTC price in cents
-				if($quote->{'source'} == 'bitcoinAverage'){
-					$usd_btc_cents = $quote->{'last'} * 100;
-				}
-				//now find the BTC price for our token
 				list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
-				if($order_currency == $input['token']){
-					//find the BTC satoshis for our peg total
-					$btc_satoshis = ($peg_total/$usd_btc_cents) * 100000000;
-					$token_price_satoshis = $quote->{'last'};
-					//finally, figure out satoshis of the token
-					$pegged_satoshis = intval(($btc_satoshis / $token_price_satoshis * 100000000));
+				if($payment_currency == $peg AND $order_currency == $input_peg_token){
+					//direct quote found
+					$quote_price = $quote->{'last'};
+					$pegged_satoshis = intval((($peg_total * $peg_decimal) / $quote_price) * $SATOSHI_MOD);
+					break;
+				}
+				if($quote->{'source'} == 'bitcoinAverage' AND $order_currency == 'BTC' AND $payment_currency == $peg){
+					$fiat_btc = $quote->{'last'};
 				}
 			}
+
+			if($pegged_satoshis == 0){
+				foreach($quotes as $quote){
+					//now find the BTC price for our token
+					list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
+					if($order_currency == $input_peg_token){
+						//find the BTC satoshis for our peg total
+						$btc_satoshis = round(($peg_total/$fiat_btc) * $SATOSHI_MOD);
+						$token_price_satoshis = $quote->{'last'};
+						//finally, figure out satoshis of the token
+						$pegged_satoshis = intval(($btc_satoshis / $token_price_satoshis * $SATOSHI_MOD));
+					}
+				}
+			}
+	
+			if($pegged_satoshis <= 0){
+				$message = "Could not obtain peg for ".$peg.":".$input['token'];
+				return Response::json(array('error' => $message), 400);
+			}
+
 			//this line feeds a value into the "total" processing code about 20 lines down
 			$input['total'] = $pegged_satoshis;
 		}
@@ -123,6 +152,16 @@ class PaymentController extends APIController {
 		}
 		else{
 			//no peg options given, do nothing
+		}
+		if($peg_total > 0){
+			//turn peg total number into an integer for DB storage
+			$default_decimal = 100; //defaults to standard fiat cents
+			if(isset($peg_currency_denoms[$peg])){
+				$peg_total = round($peg_total * $peg_currency_denoms[$peg]);
+			}
+			else{
+				$peg_total = round($peg_total * $default_decimal);
+			}
 		}
 		/*** End pegging code ***/
 
@@ -165,6 +204,8 @@ class PaymentController extends APIController {
 		$payment->reference = substr($ref, 0, 64);  //limit to 64 characters
 		$payment->payment_uuid = $address['id']; //xchain references
 		$payment->monitor_uuid = $monitor['id'];
+		$payment->peg = $peg;
+		$payment->peg_value = $peg_total;
 		try{
 			$save = $payment->save();
 		}
@@ -178,7 +219,9 @@ class PaymentController extends APIController {
 		$output['address'] = $payment->address;
 		//optional code to provide the pegged tokens if valid peg input was given
 		if($valid_peg === TRUE AND $valid_peg_total === TRUE){
-		        $output['total'] = $total;
+		   $output['total'] = $total;
+		   $output['peg'] = $peg;
+		   $output['peg_value'] = $peg_total;
 		}
 
 		
@@ -290,8 +333,8 @@ class PaymentController extends APIController {
 			$payments = $payments->where('cancelled', '!=', '1');
 		}
 		
-		$payments = $payments->select('id', 'address', 'token', 'total', 'received', 'complete', 'init_date', 'complete_date',
-							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time')->get();
+		$payments = $payments->select('id', 'address', 'token', 'total', 'received', 'peg', 'peg_value', 'complete', 'init_date', 'complete_date',
+							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time')->orderBy('id', 'desc')->get();
 					
 		foreach($payments as &$payment){
 			$payment->tx_info = json_decode($payment->tx_info);

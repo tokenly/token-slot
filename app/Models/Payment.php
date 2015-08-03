@@ -30,7 +30,7 @@ class Payment extends Model
 												->orWhere('reference', '=', $paymentId);
 								  
 							  })
-							  ->select('id', 'slotId', 'address', 'total', 'received',
+							  ->select('id', 'slotId', 'address', 'total', 'received', 'peg', 'peg_value',
 									   'complete', 'init_date', 'complete_date',
 									   'tx_info', 'reference', 'cancelled', 'cancel_time',
 									   'monitor_uuid', 'payment_uuid')
