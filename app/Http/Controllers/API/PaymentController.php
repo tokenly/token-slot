@@ -130,7 +130,8 @@ class PaymentController extends APIController {
 						$btc_satoshis = round(($peg_total/$fiat_btc) * $SATOSHI_MOD);
 						$token_price_satoshis = $quote->{'last'};
 						//finally, figure out satoshis of the token
-						$pegged_satoshis = intval(($btc_satoshis / $token_price_satoshis * $SATOSHI_MOD));
+						$pegged_satoshis =round(($btc_satoshis / $token_price_satoshis), 4);
+						$pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD);
 					}
 				}
 			}
