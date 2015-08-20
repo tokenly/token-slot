@@ -112,7 +112,7 @@ class PaymentController extends APIController {
 				if($payment_currency == $peg AND $order_currency == $input_peg_token){
 					//direct quote found
 					$quote_price = $quote->{'last'};
-					$pegged_satoshis = round((($peg_total * $peg_decimal) / $quote_price), 4);
+					$pegged_satoshis = round(($peg_total / $quote_price), 4);
 					$pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD);
 					break;
 				}
