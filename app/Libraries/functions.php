@@ -31,7 +31,7 @@ function generateInternalTXID($tx)
 		$entropy['inputs'][] = $input;
 	}
 	$entropy['outputs'] = $tx['bitcoinTx']['vout'];
-	$entropy['fees'] = $tx['fees'];
+	$entropy['fees'] = $tx['bitcoinTx']['fees'];
 	$hash = hash('sha256', hash('sha256', serialize($entropy)));
 	return $hash;
 }
