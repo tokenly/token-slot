@@ -36,8 +36,12 @@ class HookController extends Controller {
 							 foreach($tx_info as $txk => $info){
 								 if($info['txid'] == $input['txid'] OR (isset($info['internal_id']) AND $info['internal_id'] == $internal_id)){
 									 $found = true;
+									 if($info['txid'] != $input['txid']){
+										 $tx_info[$txk]['maleated'] = true;
+										 $tx_info[$txk]['maleated_tx'] = $input['txid'];
+									 }
 									 $tx_info[$txk]['confirmations'] = $input['confirmations'];
-									 $tx_unfo[$txk]['txid'] = $input['txid']; //update TX ID in case it changed due to malleability
+									 $tx_info[$txk]['txid'] = $input['txid']; //update TX ID in case it changed due to malleability
 								 }
 							 }
 						 }
@@ -47,7 +51,7 @@ class HookController extends Controller {
 						 if(!$found){
 							//add transaction to tx_info field
 							 $tx_info[] = array('sources' => $input['sources'], 'txid' => $input['txid'], 'internal_id' => $internal_id,
-												'amount' => $input['quantitySat'], 'confirmations' => $input['confirmations']);
+												'amount' => $input['quantitySat'], 'confirmations' => $input['confirmations'], 'maleated' => false, 'maleated_tx' => false);
 												
 						 }
 						 //get a total amount received and check if payment is complete
