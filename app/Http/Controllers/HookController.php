@@ -28,14 +28,16 @@ class HookController extends Controller {
 						 $getSlot->tokens = array();
 					 }
 					 if($getPayment->token == $input['asset'] AND in_array($input['asset'], $getSlot->tokens)){
+						 $internal_id = generateInternalTXID($input);
 						 $tx_info = json_decode($getPayment->tx_info, true);
 						 $found = false;
 						 if(is_array($tx_info)){
 							 //check if transaction is seen already, if so update its confirmation account
-							 foreach($tx_info as &$info){
-								 if($info['txid'] == $input['txid']){
+							 foreach($tx_info as $txk => $info){
+								 if($info['txid'] == $input['txid'] OR (isset($info['internal_id']) AND $info['internal_id'] == $internal_id)){
 									 $found = true;
-									 $info['confirmations'] = $input['confirmations'];
+									 $tx_info[$txk]['confirmations'] = $input['confirmations'];
+									 $tx_unfo[$txk]['txid'] = $input['txid']; //update TX ID in case it changed due to malleability
 								 }
 							 }
 						 }
@@ -44,7 +46,7 @@ class HookController extends Controller {
 						 }
 						 if(!$found){
 							//add transaction to tx_info field
-							 $tx_info[] = array('sources' => $input['sources'], 'txid' => $input['txid'],
+							 $tx_info[] = array('sources' => $input['sources'], 'txid' => $input['txid'], 'internal_id' => $internal_id,
 												'amount' => $input['quantitySat'], 'confirmations' => $input['confirmations']);
 												
 						 }
