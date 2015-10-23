@@ -109,6 +109,9 @@ class PaymentController extends APIController {
 			$fiat_btc = 0;
 			foreach($quotes as $quote){
 				list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
+				if($quote->{'source'} == 'bitcoinAverage' AND $order_currency == 'BTC' AND $payment_currency == $peg){
+					$fiat_btc = $quote->{'last'};
+				}				
 				if($payment_currency == $peg AND $order_currency == $input_peg_token){
 					//direct quote found
 					$quote_price = $quote->{'last'};
@@ -116,12 +119,9 @@ class PaymentController extends APIController {
 					$pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD);
 					break;
 				}
-				if($quote->{'source'} == 'bitcoinAverage' AND $order_currency == 'BTC' AND $payment_currency == $peg){
-					$fiat_btc = $quote->{'last'};
-				}
 			}
 
-			if($pegged_satoshis == 0){
+			if($pegged_satoshis == 0 AND $fiat_btc > 0){
 				foreach($quotes as $quote){
 					//now find the BTC price for our token
 					list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
