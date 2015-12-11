@@ -3,7 +3,8 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Payment, Slot, Currency;
+use Payment, Slot;
+use Tokenly\CurrencyLib\CurrencyUtil as Currency;
 
 class resendNotification extends Command {
 
