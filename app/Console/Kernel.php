@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\createSlot',
 		'App\Console\Commands\sweepTokens',
 		'App\Console\Commands\newAddress',
+		'App\Console\Commands\resendNotification',
 	];
 
 	/**
