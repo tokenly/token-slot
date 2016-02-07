@@ -21,7 +21,7 @@ class CreateSlotsTable extends Migration {
 			$table->text('tokens');
 			$table->string('webhook')->nullable();
 			$table->integer('min_conf')->default(0);
-			$table->string('forward_address', 40)->nullable();
+			$table->text('forward_address')->nullable();
 			$table->string('label')->nullable();
 			$table->timestamps();
 		});

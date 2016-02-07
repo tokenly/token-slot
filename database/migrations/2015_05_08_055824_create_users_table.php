@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration {
 			$table->increments('id');
 			$table->string('api_key')->unique();
 			$table->string('email')->unique();
-			$table->string('forward_address', 40);
+			$table->text('forward_address');
 			$table->boolean('activated')->default(0);
 			$table->timestamps();
 		});
