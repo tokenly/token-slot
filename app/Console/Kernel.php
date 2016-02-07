@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('sweepTokens')->twiceDaily()->withoutOverlapping()->sendOutputTo(storage_path().'/sweep.log');
+		$schedule->command('sweepTokens')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/sweep.log');
 	}
 
 }
