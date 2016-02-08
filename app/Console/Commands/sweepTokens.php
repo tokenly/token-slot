@@ -117,7 +117,7 @@ class sweepTokens extends Command {
 				}
 			}
 			catch(Exception $e){
-				$this->error('Error sending tokens: '.$e->getMessage());
+				$this->error('Error sending tokens: ['.$item['payment']->address.'] '.$e->getMessage());
 				$send = false;
 			}
 			
