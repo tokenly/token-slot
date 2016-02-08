@@ -82,6 +82,9 @@ class sweepTokens extends Command {
 			$address = $item['forward_address'];
 			$send = false;
 			try{
+				if(!isset($item['balances'][$token]) OR $item['balances'][$token] <= 0){
+					continue;
+				}
 				if(is_array($address) AND $token != 'BTC'){
 					$getAsset = $this->xchain->getAsset($token);
 					if(!$getAsset['divisible'] AND isset($address[0])){
@@ -105,7 +108,7 @@ class sweepTokens extends Command {
 						if($amount <= 0){
 							continue;
 						}
-						$send[$addr] = $this->xchain->send($item['payment']->payment_uuid, $addr,
+						$send[] = $this->xchain->send($item['payment']->payment_uuid, $addr,
 													$amount/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
 					}
 				}
