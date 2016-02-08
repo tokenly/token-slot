@@ -323,6 +323,7 @@ class PaymentController extends APIController {
 		$getPayment->complete = boolval($getPayment->complete);
 		$getPayment->tx_info = json_decode($getPayment->tx_info);
 		$getPayment->cancelled = boolval($getPayment->cancelled);
+		$getPayment->sweep_info = json_decode($getPayment->sweep_info);
 		
 		$decode_forward = json_decode($getPayment->forward_address, true);
 		if(is_array($decode_forward)){
