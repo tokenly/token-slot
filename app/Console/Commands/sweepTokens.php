@@ -75,17 +75,40 @@ class sweepTokens extends Command {
 			$address = $item['forward_address'];
 			$send = false;
 			try{
-				if($token == 'BTC'){
-					if($item['sweep_outputs']){
-						//BTC payment.. sweep it all to their address
-						$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address);
+				if(is_array($address) AND $token != 'BTC'){
+					$getAsset = $this->xchain->getAsset($token);
+					if(!$getAsset['divisible'] AND isset($address[0])){
+						//can only forward non divisibles to a single address
+						$address = $address[0];
+					}
+				}
+				if(is_array($address)){
+					$send = array();
+					foreach($address as $addr => $split){
+						$split = $split / 100;
+						$amount = round($item['balances'][$token] * $split);
+						if($token == 'BTC'){
+							$amount -= $this->tx_fee;
+						}
+						if($amount <= 0){
+							continue;
+						}
+						$send[$addr] = $this->xchain->send($item['payment']->payment_uuid, $addr,
+													$amount/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
 					}
 				}
 				else{
-					$balance = $item['balances'][$token];
-					$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-												$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
-												
+					if($token == 'BTC'){
+						if($item['sweep_outputs']){
+							//BTC payment.. sweep it all to their address
+							$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address);
+						}
+					}
+					else{
+						$balance = $item['balances'][$token];
+						$send = $this->xchain->send($item['payment']->payment_uuid, $address,
+													$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);						
+					}
 				}
 			}
 			catch(Exception $e){
@@ -109,8 +132,9 @@ class sweepTokens extends Command {
 	{
 		foreach($payments as $item){
 			if($item['prime_btc'] > 0){
-				if($item['prime_btc'] < $this->min_fuel_cost){
-					$item['prime_btc'] = $this->min_fuel_cost;
+				$min_cost = ($this->min_fuel_cost * $item['forward_count']);
+				if($item['prime_btc'] < $min_cost){
+					$item['prime_btc'] = $min_cost;
 				}
 				try{
 					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
@@ -151,10 +175,10 @@ class sweepTokens extends Command {
 				if(isset($item['balances']['BTC'])){
 					$thisFee += $item['balances']['BTC'];
 				}
-				$feeDiff = $thisFee - $perFee;
+				$feeDiff = $thisFee - ($perFee * $item['forward_count']);
 				if($feeDiff < 0){
-					$item['prime_btc'] = $perFee - $thisFee;
-					$btc_needed += $item['prime_btc'] + $this->tx_fee;
+					$item['prime_btc'] = ($perFee * $item['forward_count']) - $thisFee;
+					$btc_needed += $item['prime_btc'] + ($this->tx_fee * $item['forward_count']);
 					$tx_count++;
 				}
 			}
@@ -167,7 +191,7 @@ class sweepTokens extends Command {
 				$this->error('Payment balance not found for '.$item['payment']['address']);
 				continue;
 			}
-			$tx_count++;
+			$tx_count += $item['forward_count'];
 		}
 		$total_fuel = $this->getFuelBalance();
 		if($btc_needed > $total_fuel){
@@ -191,11 +215,25 @@ class sweepTokens extends Command {
 				unset($payments[$k]);
 				continue;
 			}
-			$item['forward_address'] = $item['slot']->forward_address;
-			if(trim($item['forward_address']) == ''){
+			
+			if(trim($payment->forward_address) != ''){
+				$item['forward_address'] = $payment->forward_address;
+			}
+			elseif(trim($item['slot']->forward_address != '')){
+				$item['forward_address'] = $item['slot']->forward_address;
+			}
+			else{
 				$getUser = User::find($item['slot']->userId);
 				$item['forward_address'] = $getUser['forward_address'];
 			}
+			
+			$decode_forward = json_decode($item['forward_address'], true);
+			$item['forward_count'] = 1;
+			if(is_array($decode_forward)){ //split addresses
+				$item['forward_address'] = $decode_forward;
+				$item['forward_count'] = count($item['forward_address']);
+			}
+
 			$list[] = $item;
 		}
 		return $list;
