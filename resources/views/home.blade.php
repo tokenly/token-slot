@@ -237,7 +237,8 @@
 							<li>total (integer) - optional</li>
 							<li>reference (string) - optional</li>
 							<li>peg (string) - optional</li>
-							<li>peg_value (integer) - optional
+							<li>peg_value (integer) - optional</li>
+							<li>forward_address (sting) - optional</li>
 						</ul>
 						<strong>Returns:</strong>
 						<ul>
@@ -265,6 +266,12 @@
 						</p>
 						<p>
 							A list of supported peggable tokens and currencies can be found <a href="https://github.com/tokenly/token-slot/blob/master/config/settings.php" target="_blank">here</a>.
+						</p>
+						<p>
+							The <em>forward_address</em> field allows you to set a custom routing address
+							for funds from this specific payment to be forwarded to (defaults to address defined in slot or in account).
+							Set this to an array in format {address: percentage, address2: percentage2} etc.
+							to split payments between multiple addresses. 
 						</p>
 						<p>
 							The <em>{slot_id}</em> in the endpoint URL can be either the slot's unique ID or
@@ -375,7 +382,9 @@
 							<em>forward_address</em> is the Bitcoin address which you would like incoming tokens
 							to be automatically forwarded to. Tokens received from payment requests are sent out
 							twice a day, so we never hold your funds for long periods of time. If this field is left blank,
-							your default forwarding address defined in your account will be used.
+							your default forwarding address defined in your account will be used.<br>
+							Set this to an array in format {address: percentage, address2: percentage2} etc.
+							to split payments between multiple addresses. 							
 						</p>
 						<p>
 							<em>min_conf</em> is the minimum number of confirmations required before 
@@ -539,6 +548,7 @@
 							<li>total (integer)*</li>
 							<li>peg (string)*</li>
 							<li>peg_value (integer)*</li>
+							<li>forward_address (string)</li>
 						</ul>
 						<strong>Sample JSON:</strong>
 						<pre>
@@ -547,7 +557,8 @@
     "address": "1CooQ7k4gApPeYsywTy5dpmBuB9Yqt9o3c",
     "total": 6366183636363,
     "peg": "USD",
-    "peg_value": 1000    
+    "peg_value": 1000,
+    "forward_address": null    
 }
 						</pre>	
 						<p>
@@ -575,6 +586,7 @@
 							<li>slot_id (string)</li>
 							<li>cancelled (boolean)</li>
 							<li>cancel_time (timestamp)</li>
+							<li>forward_address (string)</li>
 						</ul>
 						<p>
 							A payment request can receive multiple transactions,
@@ -602,7 +614,12 @@
     "complete_date": null,
     "tx_info": null,
     "reference": "0",
-    "slot_id": "xiXyx5X2G3G3CIS1mg98"
+    "slot_id": "xiXyx5X2G3G3CIS1mg98",
+    "forward_address":
+    {
+        "15fx1Gqe4KodZvyzN6VUSkEmhCssrM1yD7": 50,
+        "1Ao5a8QmNqMgjiE7xXcYkqjw9LjYy2YNzv": 50
+    },    
 }
 						</pre>						
 					</div>
