@@ -155,6 +155,12 @@ class SlotsController extends APIController {
 		$min_conf = 0;
 		if(isset($input['forward_address'])){
 			$address = $input['forward_address'];
+			if(!is_array($address)){
+				$attempt_decode = json_decode($address, true);
+				if(is_array($attempt_decode)){
+					$address = $attempt_decode;
+				}
+			}			
 			if(is_array($address)){
 				$forward_list = array();
 				$used_split = 100;
@@ -290,6 +296,12 @@ class SlotsController extends APIController {
 				}
 				if($field == 'forward_address'){
 					$address = $input[$field];
+					if(!is_array($address)){
+						$attempt_decode = json_decode($address, true);
+						if(is_array($attempt_decode)){
+							$address = $attempt_decode;
+						}
+					}								
 					if(is_array($address)){
 						$forward_list = array();
 						$used_split = 100;

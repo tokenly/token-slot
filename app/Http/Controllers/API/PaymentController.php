@@ -206,6 +206,12 @@ class PaymentController extends APIController {
 		$forward_address = null;
 		if(isset($input['forward_address'])){
 			$forward_address = $input['forward_address'];
+			if(!is_array($forward_address)){
+				$attempt_decode = json_decode($forward_address, true);
+				if(is_array($attempt_decode)){
+					$forward_address = $attempt_decode;
+				}
+			}
 			if(is_array($forward_address)){
 				$forward_list = array();
 				$used_split = 100;
