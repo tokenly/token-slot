@@ -63,7 +63,14 @@ class sweepTokens extends Command {
 				$getPayment->swept = 1;
 				$getPayment->sweep_info = json_encode($item['send_info']);
 				$getPayment->save();
-				$this->info('Payment of '.$item['send_info']['quantity'].' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
+				if(isset($item['send_info'][0]) AND is_array($item['send_info'][0])){
+					foreach($item['send_info'] as $info){
+						$this->info('Payment of '.$info['quantity'].' '.$info['asset'].' from '.$getPayment->address.' sent to '.$info['destination'].' - '.$info['txid']);
+					}
+				}
+				else{
+					$this->info('Payment of '.$item['send_info']['quantity'].' '.$item['send_info']['asset'].' from '.$getPayment->address.' sent to '.$item['send_info']['destination'].' - '.$item['send_info']['txid']);
+				}
 			}
 		}
 	}
