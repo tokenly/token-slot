@@ -247,6 +247,12 @@ class sweepTokens extends Command {
 			if(is_array($decode_forward)){ //split addresses
 				$item['forward_address'] = $decode_forward;
 				$item['forward_count'] = count($item['forward_address']);
+				foreach($item['forward_address'] as $address => $split){
+					if($split <= 0){
+						unset($item['forward_address'][$address]);
+						continue;
+					}
+				}
 			}
 
 			$list[] = $item;
