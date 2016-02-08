@@ -25,6 +25,10 @@ class SlotsController extends APIController {
 		foreach($slots as &$slot){
 			$slot->min_conf = intval($slot->min_conf);
 			$slot->tokens = json_decode($slot->tokens, true);
+			$decode_forward = json_decode($slot->forward_address, true);
+			if(is_array($decode_forward)){
+				$slot->forward_address = $decode_forward;
+			}
 		}
 		return Response::json($slots);
 	}
@@ -49,6 +53,10 @@ class SlotsController extends APIController {
 		}
 		$slot->min_conf = intval($slot->min_conf);
 		$slot->tokens = json_decode($slot->tokens, true);
+		$decode_forward = json_decode($slot->forward_address, true);
+		if(is_array($decode_forward)){
+			$slot->forward_address = $decode_forward;
+		}		
 		return Response::json($slot);
 	}
 	
@@ -100,6 +108,10 @@ class SlotsController extends APIController {
 			$payment->cancelled = boolval($payment->cancelled);
 			$payment->id = intval($payment->id);
 			$payment->slot_id = $slot->public_id;
+			$decode_forward = json_decode($payment->forward_address, true);
+			if(is_array($decode_forward)){
+				$payment->forward_address = $decode_forward;
+			}			
 		}
 		return Response::json($payments);
 	}
@@ -127,8 +139,8 @@ class SlotsController extends APIController {
 				$input['tokens'] = array(trim($input['tokens']));
 			}
 		}
-		foreach($input['tokens'] as &$token){
-			$token = strtoupper($token);
+		foreach($input['tokens'] as $k => $token){
+			$input['tokens'][$k] = strtoupper($token);
 		}
 
 		$webhook = null;
@@ -141,15 +153,55 @@ class SlotsController extends APIController {
 		}
 		$address = null;
 		$min_conf = 0;
-		
 		if(isset($input['forward_address'])){
 			$address = $input['forward_address'];
-			if(trim($address) != ''){
-				if(!AddressValidator::isValid($address)){
-					$output = array('error' => 'Invalid BTC address');
-					return Response::json($output, 400);
+			if(is_array($address)){
+				$forward_list = array();
+				$used_split = 100;
+				foreach($address as $k => $r){
+					$f_address = trim($k);
+					if(!AddressValidator::isValid($f_address)){
+						$output = array('error' => 'Invalid BTC address '.$f_address);
+						return Response::json($output, 400);
+					}
+					$f_split = floatval($r);
+					$used_split -= $f_split;
+					if($used_split < 0 OR $used_split > 100){
+						$output = array('error' => 'Invalid forwarding address split amounts, cannot split less than 0% or greater than 100%');
+						return Response::json($output, 400);
+					}
+					$forward_list[$f_address] = $f_split;
 				}
-			}		
+				if($used_split > 0){
+					//add remainder to top address
+					$top_address = false;
+					$top_split = false;
+					foreach($forward_list as $f_address => $f_split){
+						if(!$top_split){
+							$top_split = $f_split;
+							$top_address = $f_address;
+						}
+						else{
+							if($f_split > $top_split){
+								$top_split = $f_split;
+								$top_address = $f_address;
+							}
+						}
+					}
+					if($top_address){
+						$forward_list[$top_address] += $used_split;
+					}
+				}
+				$address = $forward_list;
+			}
+			else{
+				if(trim($address) != ''){
+					if(!AddressValidator::isValid($address)){
+						$output = array('error' => 'Invalid BTC address '.$address);
+						return Response::json($output, 400);
+					}
+				}	
+			}	
 		}
 			
 		//check if assets are real
@@ -176,6 +228,10 @@ class SlotsController extends APIController {
 			}
 		}
 		
+		if(is_array($address)){
+			$address = json_encode($address);
+		}
+		
 		$slot = new Slot;
 		$slot->userId = $user->id;
 		$slot->public_id = str_random(20);
@@ -200,6 +256,12 @@ class SlotsController extends APIController {
 		$output['nickname'] = $slot->nickname;
 		$output['created_at'] = $slot->created_at;
 		$output['updated_at'] = $slot->updated_at;
+		
+		$decode_forward = json_decode($output['forward_address'], true);
+		if(is_array($decode_forward)){
+			$output['forward_address'] = $decode_forward;
+		}		
+		
 		return Response::json($output);		
 	}
 	
@@ -227,10 +289,53 @@ class SlotsController extends APIController {
 					$input[$field] = intval($input[$field]);
 				}
 				if($field == 'forward_address'){
-					if(!AddressValidator::isValid($input[$field])){
-						$output = array('error' => 'Invalid BTC address');
-						return Response::json($output, 400);
-					}					
+					$address = $input[$field];
+					if(is_array($address)){
+						$forward_list = array();
+						$used_split = 100;
+						foreach($address as $k => $r){
+							$f_address = trim($k);
+							if(!AddressValidator::isValid($f_address)){
+								$output = array('error' => 'Invalid BTC address '.$f_address);
+								return Response::json($output, 400);
+							}
+							$f_split = floatval($r);
+							$used_split -= $f_split;
+							if($used_split < 0 OR $used_split > 100){
+								$output = array('error' => 'Invalid forwarding address split amounts, cannot split less than 0% or greater than 100%');
+								return Response::json($output, 400);
+							}
+							$forward_list[$f_address] = $f_split;
+						}
+						if($used_split > 0){
+							//add remainder to top address
+							$top_address = false;
+							$top_split = false;
+							foreach($forward_list as $f_address => $f_split){
+								if(!$top_split){
+									$top_split = $f_split;
+									$top_address = $f_address;
+								}
+								else{
+									if($f_split > $top_split){
+										$top_split = $f_split;
+										$top_address = $f_address;
+									}
+								}
+							}
+							if($top_address){
+								$forward_list[$top_address] += $used_split;
+							}
+						}						
+						$input[$field] = json_encode($forward_list);
+					}
+					else{						
+						if(!AddressValidator::isValid($address)){
+							$output = array('error' => 'Invalid BTC address '.$address);
+							return Response::json($output, 400);
+						}	
+					}		
+						
 				}
 				if($field == 'webhook' AND trim($input[$field]) != ''){
 					if(!filter_var($input[$field], FILTER_VALIDATE_URL)){
@@ -300,6 +405,12 @@ class SlotsController extends APIController {
 		$output['nickname'] = $getSlot->nickname;
 		$output['created_at'] = $getSlot->created_at;
 		$output['updated_at'] = $getSlot->updated_at;
+		
+		$decode_forward = json_decode($output['forward_address'], true);
+		if(is_array($decode_forward)){
+			$output['forward_address'] = $decode_forward;
+		}
+		
 		return Response::json($output);
 	}
 	

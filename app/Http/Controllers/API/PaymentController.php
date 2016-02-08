@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use LinusU\Bitcoin\AddressValidator;
 use User, Slot, Input, Response, Payment, Config;
 
 class PaymentController extends APIController {
@@ -34,11 +35,13 @@ class PaymentController extends APIController {
             $message = "Slot accepted token list invalid";
 			return Response::json(array('error' => $message), 400);
 		}
-		
+
 		if(!isset($input['token'])){
             $message = "Payment token name required";
 			return Response::json(array('error' => $message), 400);
 		}
+		
+
 		
 		if((isset($input['token']) AND !in_array(strtoupper(trim($input['token'])), $getSlot->tokens))){
             $message = "Token ".$input['token']." not accepted by this slot";
@@ -200,6 +203,58 @@ class PaymentController extends APIController {
 			$ref = trim($input['ref']);
 		}
 		
+		$forward_address = null;
+		if(isset($input['forward_address'])){
+			$forward_address = $input['forward_address'];
+			if(is_array($forward_address)){
+				$forward_list = array();
+				$used_split = 100;
+				foreach($forward_address as $k => $r){
+					$f_address = trim($k);
+					if(!AddressValidator::isValid($f_address)){
+						$output = array('error' => 'Invalid BTC address '.$f_address);
+						return Response::json($output, 400);
+					}
+					$f_split = floatval($r);
+					$used_split -= $f_split;
+					if($used_split < 0 OR $used_split > 100){
+						$output = array('error' => 'Invalid forwarding address split amounts, cannot split less than 0% or greater than 100%');
+						return Response::json($output, 400);
+					}
+					$forward_list[$f_address] = $f_split;
+				}
+				if($used_split > 0){
+					//add remainder to top address
+					$top_address = false;
+					$top_split = false;
+					foreach($forward_list as $f_address => $f_split){
+						if(!$top_split){
+							$top_split = $f_split;
+							$top_address = $f_address;
+						}
+						else{
+							if($f_split > $top_split){
+								$top_split = $f_split;
+								$top_address = $f_address;
+							}
+						}
+					}
+					if($top_address){
+						$forward_list[$top_address] += $used_split;
+					}
+				}				
+				$forward_address = json_encode($forward_list);
+			}
+			else{
+				if(trim($forward_address) != ''){
+					if(!AddressValidator::isValid($forward_address)){
+						$output = array('error' => 'Invalid BTC address '.$forward_address);
+						return Response::json($output, 400);
+					}
+				}	
+			}	
+		}		
+		
 		//save the payment data
 		$payment = new Payment;
 		$payment->slotId = $getSlot->id;
@@ -213,6 +268,7 @@ class PaymentController extends APIController {
 		$payment->monitor_uuid = $monitor['id'];
 		$payment->peg = $peg;
 		$payment->peg_value = $peg_total;
+		$payment->forward_address = $forward_address;
 		try{
 			$save = $payment->save();
 		}
@@ -267,6 +323,11 @@ class PaymentController extends APIController {
 		$getPayment->complete = boolval($getPayment->complete);
 		$getPayment->tx_info = json_decode($getPayment->tx_info);
 		$getPayment->cancelled = boolval($getPayment->cancelled);
+		
+		$decode_forward = json_decode($getPayment->forward_address, true);
+		if(is_array($decode_forward)){
+			$getPayment->forward_address = $decode_forward;
+		}				
 		
 		return Response::json($getPayment);
 	}
@@ -355,6 +416,10 @@ class PaymentController extends APIController {
 					$payment->slot_id = $slot->public_id;
 				}
 			}
+			$decode_forward = json_decode($payment->forward_address, true);
+			if(is_array($decode_forward)){
+				$payment->forward_address = $decode_forward;
+			}				
 		}
 		return Response::json($payments);
 	}	
