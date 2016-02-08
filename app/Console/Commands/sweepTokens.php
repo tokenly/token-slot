@@ -79,7 +79,12 @@ class sweepTokens extends Command {
 					$getAsset = $this->xchain->getAsset($token);
 					if(!$getAsset['divisible'] AND isset($address[0])){
 						//can only forward non divisibles to a single address
-						$address = $address[0];
+						$set_addr = false;
+						foreach($address as $addr => $split){
+							$set_addr = $addr;
+							break;
+						}
+						$address = $set_addr;
 					}
 				}
 				if(is_array($address)){
