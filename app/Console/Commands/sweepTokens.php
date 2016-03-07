@@ -80,6 +80,7 @@ class sweepTokens extends Command {
 		foreach($payments as $k => $item){
 			$token = $item['payment']->token;
 			$address = $item['forward_address'];
+			$payments[$k]['send_info'] = false;
 			$send = false;
 			try{
 				if(!isset($item['balances'][$token]) OR $item['balances'][$token] <= 0){
