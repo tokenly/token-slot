@@ -97,6 +97,7 @@ class resendNotification extends Command {
 	{
 		return [
 			['id', InputArgument::REQUIRED, 'Payment ID or address'],
+			['complete', InputArgument::OPTIONAL, 'Set request to complete or not', false]
 		];
 	}
 
@@ -108,7 +109,7 @@ class resendNotification extends Command {
 	protected function getOptions()
 	{
 		return [
-			['complete', InputArgument::OPTIONAL, 'Set request to complete or not', false]
+			
 		];
 	}
 
