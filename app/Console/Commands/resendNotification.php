@@ -77,12 +77,14 @@ class resendNotification extends Command {
 		$hookData['complete_date'] = $getPayment->complete_date;
 		$hookData['tx_info'] = json_decode($getPayment->tx_info, true);
 		
-		$sendWebhook = $caller->sendWebhook($hookData, $getSlot->webhook);
-		
-		if(!$sendWebhook){
-			$this->error('Error sending notification');
+		try{
+			$sendWebhook = $caller->sendWebhook($hookData, $getSlot->webhook);
+		}
+		catch(\Exception $e){
+			$this->error('Error sending notification '.$e->getMessage());
 			return false;
 		}
+		
 		
 		$this->info('Payment notification sent'.$complete_txt);
 		
