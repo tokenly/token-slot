@@ -51,6 +51,15 @@ class resendNotification extends Command {
 			return false;
 		}
 		
+		$complete = boolval($getPayment->complete);
+		$complete_txt = '';
+		if(boolval($this->argument('complete'))){
+			$complete = true;
+			$getPayment->complete = 1;
+			$getPayment->save();
+			$complete_txt = ' (completed)';
+		}
+		
 		$caller = app('Tokenly\XcallerClient\Client');
 		$hookData = array();
 		$hookData['payment_id'] = $getPayment->id;
@@ -64,7 +73,7 @@ class resendNotification extends Command {
 		$hookData['received_satoshis'] = $getPayment->received;
 		$hookData['confirmations'] = $getSlot->min_conf; 				
 		$hookData['init_date'] = $getPayment->init_date;
-		$hookData['complete'] = boolval($getPayment->complete);
+		$hookData['complete'] = $complete;
 		$hookData['complete_date'] = $getPayment->complete_date;
 		$hookData['tx_info'] = json_decode($getPayment->tx_info, true);
 		
@@ -75,7 +84,7 @@ class resendNotification extends Command {
 			return false;
 		}
 		
-		$this->info('Payment notification sent');
+		$this->info('Payment notification sent'.$complete_txt);
 		
 	}
 
@@ -99,6 +108,7 @@ class resendNotification extends Command {
 	protected function getOptions()
 	{
 		return [
+			['complete', InputArgument::OPTIONAL, 'Set request to complete or not', false]
 		];
 	}
 
