@@ -2,4 +2,3 @@
 /node_modules
 .env
 .gitattributes
-composer.lock
