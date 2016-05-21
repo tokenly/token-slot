@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "93cfa557265a6e80a693d3c08b6f4179",
-    "content-hash": "5d265310142f5bdc15fd98a6ffea2cb2",
+    "hash": "56012d93f9689a1c56df19379468c406",
+    "content-hash": "182c8c496658d878b4e41139ae5a9ddb",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -2607,16 +2607,16 @@
         },
         {
             "name": "tokenly/laravel-api-provider",
-            "version": "v0.1.5",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/laravel-api-provider.git",
-                "reference": "9edb5f6e4fc8b53852be6033c1bef4cbf19ab869"
+                "reference": "7558d9c970bcda5c5afe90a3d67e1f47079f7f25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/9edb5f6e4fc8b53852be6033c1bef4cbf19ab869",
-                "reference": "9edb5f6e4fc8b53852be6033c1bef4cbf19ab869",
+                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/7558d9c970bcda5c5afe90a3d67e1f47079f7f25",
+                "reference": "7558d9c970bcda5c5afe90a3d67e1f47079f7f25",
                 "shasum": ""
             },
             "require": {
@@ -2647,7 +2647,7 @@
                 }
             ],
             "description": "An API service provider for Laravel",
-            "time": "2016-05-18 03:09:27"
+            "time": "2016-05-21 17:33:24"
         },
         {
             "name": "tokenly/laravel-blocking-beanstalkd",
@@ -2811,16 +2811,16 @@
         },
         {
             "name": "tokenly/xchain-client",
-            "version": "v0.2.5",
+            "version": "v0.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/xchain-client.git",
-                "reference": "141410a469557a777558bdb137c8c948872d2ba8"
+                "reference": "3f9814b98b058a5478af3b212f0369e3f75f3fcc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/141410a469557a777558bdb137c8c948872d2ba8",
-                "reference": "141410a469557a777558bdb137c8c948872d2ba8",
+                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/3f9814b98b058a5478af3b212f0369e3f75f3fcc",
+                "reference": "3f9814b98b058a5478af3b212f0369e3f75f3fcc",
                 "shasum": ""
             },
             "require": {
@@ -2845,12 +2845,12 @@
             "authors": [
                 {
                     "name": "Devon Weller",
-                    "email": "dweller@devonweller.com",
-                    "homepage": "http://devonweller.com"
+                    "email": "dweller@tokenly.com",
+                    "homepage": "http://tokenly.com"
                 }
             ],
             "description": "A library",
-            "time": "2016-05-05 22:08:34"
+            "time": "2016-05-21 17:44:41"
         },
         {
             "name": "vlucas/phpdotenv",
