@@ -1,43 +1,49 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
-	/**
-	 * Use if this test interacts with the database
-	 * @var boolean
-	 */
-	protected $use_database = false;
+    protected $baseUrl = 'http://localhost';
 
-	/**
-	 * Creates the application.
-	 *
-	 * @return \Illuminate\Foundation\Application
-	 */
-	public function createApplication()
-	{
-		$app = require __DIR__.'/../bootstrap/app.php';
+    protected $use_database = false;
 
-		$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+    /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        $app = require __DIR__.'/../bootstrap/app.php';
 
-		return $app;
-	}
+        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+        return $app;
+    }
 
     public function setUp()
     {
+        // make sure we are using the testing environment
         parent::setUp();
 
-        if ($this->use_database) { $this->setUpDb(); }
+        if($this->use_database) {
+            $this->setUpDb();
+        }
     }
 
-
-    protected function setUpDb()
-    {
-        app('Illuminate\Contracts\Console\Kernel')->call('migrate');
+    public function tearDown() {
+        return parent::tearDown();
     }
 
-    protected function teardownDb()
+    public function setUpDb()
     {
-        app('Illuminate\Contracts\Console\Kernel')->call('migrate:reset');
+        // migrate the database
+        $this->app['Illuminate\Contracts\Console\Kernel']->call('migrate');
+    }
+
+    public function teardownDb() {
+        $this->app['Illuminate\Contracts\Console\Kernel']->call('migrate:reset');
     }
 
 }

@@ -3,7 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddPaymentUuidField extends Migration {
+
+
+class AddInitDateIndexToPaymentRequests extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,8 +16,7 @@ class AddPaymentUuidField extends Migration {
 	{
 		Schema::table('payment_requests', function(Blueprint $table)
 		{
-			$table->string('payment_uuid')->default('');
-			$table->index('payment_uuid');
+			$table->index('init_date');
 		});
 	}
 
@@ -28,7 +29,7 @@ class AddPaymentUuidField extends Migration {
 	{
 		Schema::table('payment_requests', function(Blueprint $table)
 		{
-			$table->dropColumn('payment_uuid');
+			$table->dropIndex('payment_requests_init_date_index');
 		});
 	}
 

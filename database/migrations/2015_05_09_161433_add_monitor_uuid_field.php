@@ -14,7 +14,7 @@ class AddMonitorUuidField extends Migration {
 	{
 		Schema::table('payment_requests', function(Blueprint $table)
 		{
-			$table->string('monitor_uuid');
+			$table->string('monitor_uuid')->default('');
 			$table->index('monitor_uuid');
 		});
 	}

@@ -4,8 +4,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
+
 	public static $api_user = false;
-	
+
+    protected static $unguarded = true;
+
+
     protected $casts = [
         'activated' => 'boolean',
     ];

@@ -27,7 +27,7 @@ class GenerateClientCommandTest extends TestCase {
         PHPUnit::assertEquals('testone@tokenly.co', $user['email']);
         PHPUnit::assertEquals('1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD', $user['forward_address']);
         PHPUnit::assertTrue($user['activated']);
-        PHPUnit::assertEquals(64, strlen($user['api_key']));
+        PHPUnit::assertEquals(32, strlen($user['api_key']));
     }
 
     /**

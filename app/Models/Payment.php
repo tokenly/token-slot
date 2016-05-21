@@ -5,7 +5,14 @@ use Illuminate\Database\Eloquent\Model;
 class Payment extends Model
 {
 	protected $table = 'payment_requests';
+	
 	public $timestamps = false;
+
+    protected static $unguarded = true;
+
+    protected $casts = [
+	    'archived' => 'boolean',
+    ];
 	
 	/**
 	 * finds a payment request

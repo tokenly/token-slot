@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\sweepTokens',
 		'App\Console\Commands\newAddress',
 		'App\Console\Commands\resendNotification',
+		'App\Console\Commands\expirePayments',
 	];
 
 	/**
@@ -28,6 +29,7 @@ class Kernel extends ConsoleKernel {
 	protected function schedule(Schedule $schedule)
 	{
 		$schedule->command('sweepTokens')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/sweep.log');
+		$schedule->command('expirePayments')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/expire.log');
 	}
 
 }

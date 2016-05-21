@@ -1,9 +1,12 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
+namespace App\Models;
 
-class Slot extends Model
-{
+use Tokenly\LaravelApiProvider\Model\APIModel;
+use Exception;
 
-	
+class Slot extends APIModel {
+
+    protected $api_attributes = ['id',];
+
 }

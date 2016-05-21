@@ -29,6 +29,11 @@ class AppServiceProvider extends ServiceProvider {
 			'Illuminate\Contracts\Auth\Registrar',
 			'App\Services\Registrar'
 		);
+
+        $this->app->singleton('dateprovider', function($app) {
+            return app('App\Providers\Date\DateProvider');
+        });
+
 	}
 
 }

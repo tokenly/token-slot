@@ -36,8 +36,12 @@
 	},
 	"autoload-dev": {
 		"classmap": [
+            "tests/testlib/",
 			"tests/TestCase.php"
-		]
+		],
+        "files": [
+            "tests/testlib/test_helpers.php"
+        ]
 	},
 	"scripts": {
 		"post-install-cmd": [

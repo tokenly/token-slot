@@ -3,7 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddPaymentUuidField extends Migration {
+
+
+class AddArchiveFlagToPaymentRequests extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,8 +16,8 @@ class AddPaymentUuidField extends Migration {
 	{
 		Schema::table('payment_requests', function(Blueprint $table)
 		{
-			$table->string('payment_uuid')->default('');
-			$table->index('payment_uuid');
+			$table->boolean('archived')->default(false);
+			$table->dateTime('archived_date')->nullable();
 		});
 	}
 
@@ -28,7 +30,8 @@ class AddPaymentUuidField extends Migration {
 	{
 		Schema::table('payment_requests', function(Blueprint $table)
 		{
-			$table->dropColumn('payment_uuid');
+			$table->dropColumn('archived_date');
+			$table->dropColumn('archived');
 		});
 	}
 
