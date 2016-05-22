@@ -6,6 +6,7 @@ use App\Providers\Date\Facade\DateProvider;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Payment;
+use Exception;
 
 class expirePayments extends Command
 {
@@ -86,12 +87,20 @@ class expirePayments extends Command
         $payment_repository = app('App\Repositories\PaymentRequestRepository');
 
         // send request to XChain to delete (archive) the payment address
-        xchain()->destroyPaymentAddress($unarchived_payment['payment_uuid']);
-
+        try{
+            xchain()->destroyPaymentAddress($unarchived_payment['payment_uuid']);
+        }
+        catch(Exception $e){
+            $this->error('Error archiving #'.$unarchived_payment['id'].': '.$e->getMessage());
+            return false;
+        }
+        
         // update repository
         $payment_repository->update($unarchived_payment, [
             'archived' => true,
             'archived_date' => DateProvider::now(),
         ]);
+        
+        $this->info('Payment #'.$unarchived_payment['id'].' archived');
     }
 }
