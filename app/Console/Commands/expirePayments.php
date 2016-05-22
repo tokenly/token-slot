@@ -81,6 +81,7 @@ class expirePayments extends Command
     protected function expirePayments($seconds_old, $limit=null) {
         $payment_repository = app('App\Repositories\PaymentRequestRepository');
         $unarchived_payments = $payment_repository->findUnarchivedOlderThanSeconds($seconds_old, $limit);
+        $this->info('Checking '.count($unarchived_payments).' for expiration');
         foreach($unarchived_payments as $unarchived_payment) {
             $this->archivePayment($unarchived_payment);
         }
