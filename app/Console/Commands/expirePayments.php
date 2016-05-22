@@ -56,6 +56,7 @@ class expirePayments extends Command
         return [
             ['max', 'm', InputOption::VALUE_OPTIONAL, 'Maximum addresses to expire on this run', 1000],
             ['all', 'a', InputOption::VALUE_OPTIONAL, 'No limit, expire everything', false],
+            ['archive-on-error', 'aoe', InputOption::VALUE_OPTIONAL, 'Archive the payment anyway if there is an error from xchain', false],
         ];
     }
 
@@ -97,8 +98,11 @@ class expirePayments extends Command
             xchain()->destroyPaymentAddress($unarchived_payment['payment_uuid']);
         }
         catch(Exception $e){
-            $this->error('Error archiving #'.$unarchived_payment['id'].': '.$e->getMessage());
-            return false;
+            $this->error('Error destroying payment address for  #'.$unarchived_payment['id'].': '.$e->getMessage());
+            $this->info('Payment address uuid: '.$unarchived_payment['payment_uuid']);
+            if(!$this->option('archive-on-error')){
+                return false;
+            }
         }
         
         // update repository
