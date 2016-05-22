@@ -112,7 +112,7 @@
 				When a new order or redemption is created in your application, Token Slot generates a fresh bitcoin address, unique to the customer.
 				When the correct amount of tokens is received to the payment address, the payment request is marked as complete, and you may 
 				continue on to finalize the redemption (e.g, ship the product). All tokens received are regularly forwarded to 
-				an address of your choosing, twice a day. 
+				an address of your choosing, twice a day. Payment requests automatically expire after 48 hours.
 			</p>
 			<p>
 				<Strong>Step 1:</Strong>
