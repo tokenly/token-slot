@@ -55,6 +55,7 @@ class expirePayments extends Command
     {
         return [
             ['max', 'm', InputOption::VALUE_OPTIONAL, 'Maximum addresses to expire on this run', 1000],
+            ['all', 'a', InputOption::VALUE_OPTIONAL, 'No limit, expire everything', false],
         ];
     }
 
@@ -67,7 +68,11 @@ class expirePayments extends Command
     {
         $this->comment('['.DateProvider::now().'] begin expiring payments');
         $seconds_old = env('EXPIRE_OLD_ADDRESSES_SECONDS', 172800);
-        $count_expired = $this->expirePayments($seconds_old, $this->option('max'));
+        $max = $this->option('max');
+        if($this->option('all')){
+            $max = null;
+        }
+        $count_expired = $this->expirePayments($seconds_old, $max);
         $this->comment('['.DateProvider::now().'] Finished expiring payments. Expired '.$count_expired.' payment(s).');
     }
 
