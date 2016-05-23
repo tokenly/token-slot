@@ -4,7 +4,7 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use LinusU\Bitcoin\AddressValidator;
-use \Exception, User, Slot;
+use \Exception, User, App\Models\Slot;
 
 class createSlot extends Command {
 

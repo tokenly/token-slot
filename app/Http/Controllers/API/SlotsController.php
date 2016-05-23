@@ -5,7 +5,7 @@ use App\Http\Controllers\API\Base\APIController;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use LinusU\Bitcoin\AddressValidator;
-use User, Slot, Input, Response, Payment;
+use User, App\Models\Slot, Input, Response, Payment;
 use Log;
 
 class SlotsController extends APIController {
