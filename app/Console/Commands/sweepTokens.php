@@ -47,6 +47,9 @@ class sweepTokens extends Command {
 	public function fire()
 	{
 		$payments = $this->getUnsweptPayments();
+        if(count($payments) == 0){
+            return false;
+        }
 		$list = $this->getBasePaymentData($payments);
 		$prep = $this->prepSendAmounts($list);
 		$prime = $this->primeAddressInputs($prep);
