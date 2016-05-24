@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Tokenly\CurrencyLib\CurrencyUtil as Currency;
-use Config, Input, Slot, Payment;
+use Config, Input, App\Models\Slot, Payment;
 class HookController extends Controller {
 
 	/**
