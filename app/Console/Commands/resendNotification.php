@@ -44,7 +44,7 @@ class resendNotification extends Command {
         $caller = app('Tokenly\XcallerClient\Client');
         if($since AND trim($since) != ''){
             $date = date('Y-m-d H:i:s', strtotime($since));
-            $payment_list = Payment::where('created_at', '>=', $date)->get();
+            $payment_list = Payment::where('init_date', '>=', $date)->get();
             if(!$payment_list){
                 $payment_list = array();
             }
