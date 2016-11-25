@@ -124,23 +124,26 @@ class SlotsController extends APIController {
 	{
 		$user = User::$api_user;
 		$input = Input::all();
-		$required = array('tokens');
-		if(!isset($input['tokens']) OR (!is_array($input['tokens']) AND trim($input['tokens']) == '') 
-			OR (is_array($input['tokens']) AND count($input['tokens']) == 0)){
-				$output = array('error' => 'tokens required');
-				return Response::json($output, 400);
-		}
-		if(!is_array($input['tokens'])){
-			$decode_tokens = json_decode($input['tokens'], true);
-			if(is_array($decode_tokens)){
-				$input['tokens'] = $decode_tokens;
-			}
-			else{
-				$input['tokens'] = array(trim($input['tokens']));
-			}
-		}
-		foreach($input['tokens'] as $k => $token){
-			$input['tokens'][$k] = strtoupper($token);
+        $token_list = array();
+        if(isset($input['tokens'])){
+            if(!is_array($input['tokens']) AND trim($input['tokens']) != ''){
+                $decode_tokens = json_decode($input['tokens'], true);
+                if(is_array($decode_tokens)){
+                    $input['tokens'] = $decode_tokens;
+                }
+                else{
+                    $input['tokens'] = array(trim($input['tokens']));
+                }
+                $token_list = $input['tokens'];
+            }
+            elseif(is_array($input['tokens'])){
+                $token_list = $input['tokens'];
+            }
+            
+        }
+
+		foreach($token_list as $k => $token){
+			$token_list[$k] = strtoupper($token);
 		}
 
 		$webhook = null;
@@ -213,12 +216,14 @@ class SlotsController extends APIController {
 		//check if assets are real
 		$xchain = xchain(); 
 		try{
-			foreach($input['tokens'] as $token){
-				$checkAsset = $xchain->getAsset($token);
-				if(!$checkAsset){
-					throw new Exception('Could not get asset');
-				}				
-			}
+            if(count($token_list) > 0){
+                foreach($token_list as $token){
+                    $checkAsset = $xchain->getAsset($token);
+                    if(!$checkAsset){
+                        throw new Exception('Could not get asset');
+                    }				
+                }
+            }
 		}
 		catch(Exception $e){
 			Log::error($e->getMessage().' ('.__FUNCTION__.')');
@@ -241,7 +246,7 @@ class SlotsController extends APIController {
 		$slot = new Slot;
 		$slot->userId = $user->id;
 		$slot->public_id = str_random(20);
-		$slot->tokens = json_encode($input['tokens']);
+		$slot->tokens = json_encode($token_list);
 		$slot->webhook = $webhook;
 		$slot->min_conf = $min_conf;
 		$slot->forward_address = $address;
@@ -254,7 +259,7 @@ class SlotsController extends APIController {
 		$save = $slot->save();
 		$output = array();
 		$output['public_id'] = $slot->public_id;
-		$output['tokens'] = $input['tokens'];
+		$output['tokens'] = $token_list;
 		$output['webhook'] = $slot->webhook;
 		$output['min_conf'] = $slot->min_conf;
 		$output['forward_address'] = $slot->forward_address;

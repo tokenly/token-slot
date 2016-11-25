@@ -29,25 +29,21 @@ class PaymentController extends APIController {
             $message = "Invalid slot ID";
 			return Response::json(array('error' => $message), 400);
 		}
-		
-		$getSlot->tokens = json_decode($getSlot->tokens, true);
-		if(!is_array($getSlot->tokens)){
-            $message = "Slot accepted token list invalid";
-			return Response::json(array('error' => $message), 400);
-		}
-
+        
 		if(!isset($input['token'])){
             $message = "Payment token name required";
 			return Response::json(array('error' => $message), 400);
-		}
+		}        
+        $input['token'] = strtoupper(trim($input['token']));
 		
+		$getSlot->tokens = json_decode($getSlot->tokens, true);
+		if(is_array($getSlot->tokens) AND count($getSlot->tokens) > 0){
+            if((isset($input['token']) AND !in_array($input['token']), $getSlot->tokens))){
+                $message = "Token ".$input['token']." not accepted by this slot";
+                return Response::json(array('error' => $message), 400);	
+            }            
+		}
 
-		
-		if((isset($input['token']) AND !in_array(strtoupper(trim($input['token'])), $getSlot->tokens))){
-            $message = "Token ".$input['token']." not accepted by this slot";
-			return Response::json(array('error' => $message), 400);	
-		}
-		$input['token'] = strtoupper(trim($input['token']));
 		
 		/*** Begin pegging code ***/
 		//validators for peg options
