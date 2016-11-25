@@ -38,7 +38,7 @@ class PaymentController extends APIController {
 		
 		$getSlot->tokens = json_decode($getSlot->tokens, true);
 		if(is_array($getSlot->tokens) AND count($getSlot->tokens) > 0){
-            if((isset($input['token']) AND !in_array($input['token']), $getSlot->tokens))){
+            if(!in_array($input['token'], $getSlot->tokens)){
                 $message = "Token ".$input['token']." not accepted by this slot";
                 return Response::json(array('error' => $message), 400);	
             }            
