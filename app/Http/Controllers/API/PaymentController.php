@@ -256,6 +256,16 @@ class PaymentController extends APIController {
 				}	
 			}	
 		}		
+        
+        //custom min_conf for this invoice
+        $min_conf = null; //null = use slot default
+        if(isset($input['min_conf'])){
+            $min_conf = intval($input['min_conf']);
+            if($min_conf < 0){
+                $output = array('error' => 'Invalid min_conf '.$min_conf);
+                return Response::json($output, 400);
+            }
+        }
 		
 		//save the payment data
 		$payment = new Payment;

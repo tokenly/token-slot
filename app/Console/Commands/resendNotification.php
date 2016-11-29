@@ -85,7 +85,10 @@ class resendNotification extends Command {
             $hookData['total_satoshis'] = $getPayment->total;
             $hookData['received'] = Currency::satoshisToValue($getPayment->received);
             $hookData['received_satoshis'] = $getPayment->received;
-            $hookData['confirmations'] = $getSlot->min_conf; 				
+            $hookData['confirmations'] = $getSlot->min_conf; 	
+            if($getPayment->min_conf != null){
+                $hookData['confirmations'] = $getPayment->min_conf;
+            }			
             $hookData['init_date'] = $getPayment->init_date;
             $hookData['complete'] = $complete;
             $hookData['complete_date'] = $getPayment->complete_date;

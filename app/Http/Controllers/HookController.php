@@ -54,6 +54,12 @@ class HookController extends Controller {
 												'amount' => $input['quantitySat'], 'confirmations' => $input['confirmations'], 'maleated' => false, 'maleated_tx' => false);
 												
 						 }
+                         
+                         $min_conf = $getSlot->min_conf;
+                         if($getPayment->min_conf != null){
+                             $min_conf = $getPayment->min_conf;
+                         }
+                         
 						 //get a total amount received and check if payment is complete
 						 $totalReceived = 0;
 						 $leastConfirmed = 0;
@@ -62,7 +68,7 @@ class HookController extends Controller {
 							 $complete = true;
 							 foreach($tx_info as $info){
 								 $totalReceived += $info['amount'];
-								 if($info['confirmations'] < $getSlot->min_conf){
+								 if($info['confirmations'] < $min_conf){
 									 $complete = false; //one of the transactions has less than required confirms, not complete
 								 }
 								 if($info['confirmations'] > $leastConfirmed){
