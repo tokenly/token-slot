@@ -281,6 +281,7 @@ class PaymentController extends APIController {
 		$payment->peg = $peg;
 		$payment->peg_value = $peg_total;
 		$payment->forward_address = $forward_address;
+        $payment->min_conf = $min_conf;
 		try{
 			$save = $payment->save();
 		}
