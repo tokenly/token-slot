@@ -27,7 +27,8 @@ class HookController extends Controller {
 					 if(!is_array($getSlot->tokens)){
 						 $getSlot->tokens = array();
 					 }
-					 if($getPayment->token == $input['asset'] AND in_array($input['asset'], $getSlot->tokens)){
+                     $token_count = count($getSlot->tokens);
+					 if($getPayment->token == $input['asset'] AND ($token_count == 0 OR ($token_count > 0 AND in_array($input['asset'], $getSlot->tokens)))){
 						 $internal_id = generateInternalTXID($input);
 						 $tx_info = json_decode($getPayment->tx_info, true);
 						 $found = false;
