@@ -57,7 +57,7 @@ class HookController extends Controller {
 						 }
                          
                          $min_conf = $getSlot->min_conf;
-                         if($getPayment->min_conf != null){
+                         if($getPayment->min_conf !== null){
                              $min_conf = $getPayment->min_conf;
                          }
                          
