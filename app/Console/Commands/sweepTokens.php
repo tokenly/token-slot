@@ -31,7 +31,6 @@ class sweepTokens extends Command {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->xchain = xchain();
 		$this->tx_fee = Config::get('settings.sweep_tx_fee');
 		$this->tx_dust = Config::get('settings.sweep_tx_dust');
 		$this->fuel_source = Config::get('settings.sweep_fuel_source');
@@ -46,6 +45,9 @@ class sweepTokens extends Command {
 	 */
 	public function fire()
 	{
+		$this->xchain = xchain();
+        $this->bitsplit = app('Tokenly\BitsplitClient\Client');
+                
 		$payments = $this->getUnsweptPayments();
         if(count($payments) == 0){
             return false;
@@ -80,15 +82,19 @@ class sweepTokens extends Command {
 	
 	protected function sendTokens($payments)
 	{
+
 		foreach($payments as $k => $item){
 			$token = $item['payment']->token;
 			$address = $item['forward_address'];
 			$payments[$k]['send_info'] = false;
 			$send = false;
 			try{
+                //check balance is set
 				if(!isset($item['balances'][$token]) OR $item['balances'][$token] <= 0){
 					continue;
 				}
+                
+                //check asset divisibility
 				if(is_array($address) AND $token != 'BTC'){
 					$getAsset = $this->xchain->getAsset($token);
 					if(!$getAsset['divisible'] AND isset($address[0])){
@@ -101,22 +107,49 @@ class sweepTokens extends Command {
 						$address = $set_addr;
 					}
 				}
+                
+                //if forwarding to multiple addresses, use BTC sendmany or bitsplit
 				if(is_array($address)){
-					$send = array();
-					foreach($address as $addr => $split){
-						$split = $split / 100;
-						$amount = round($item['balances'][$token] * $split);
-						if($token == 'BTC'){
-							$amount -= $this->tx_fee;
-						}
-						if($amount <= 0){
-							continue;
-						}
-						$send[] = $this->xchain->send($item['payment']->payment_uuid, $addr,
-													$amount/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
-					}
+					$send = false;
+                    if($token != 'BTC'){
+                        //bitsplit distribution
+                        $distro_opts = array();
+                        $distro_opts['label'] = 'Tokenslot forwarding for payment #'.$item['payment']->id;
+                        $distro_opts['value_type'] = 'percent';
+                        $distro = $this->bitsplit->createDistribution($token, $address, true, $distro_opts);
+                        if($distro AND isset($distro['deposit_address'])){
+                            $send_item = array();
+                            $send_item['bitsplit'] = $distro;
+                            $send_item['xchain'] = $this->xchain->send($item['payment']->payment_uuid, $distro['deposit_address'],
+                                                          $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);                            
+                            $send = $send_item;
+                        }
+                        else{
+                            throw new Exception('Error creating distribution for payment '.$item['payment']->id);
+                        }
+                    }
+                    else{
+                        //BTC multi-send
+                        $balance = $item['balances'][$token];
+                        $fee = $this->tx_fee;
+                        $extra_bytes = 40*count($address);
+                        $fee += $extra_bytes * 50; //add some extra satoshis to account for tx size
+                        $send_balance = $balance - $fee;
+                        $btc_send_list = array();
+                        foreach($address as $addr => $split){
+                            $amount = round($send_balance * $split);
+                            if($amount <= 5500){ //cannot send less than dust limit
+                                continue;
+                            }
+                            $btc_send_list[] = array('address' => $addr, 'amount' => $amount/self::SATOSHI_MOD);
+                        }
+                        if(count($btc_send_list) > 0){
+                            $send = $this->xchain->sendBTCToMultipleDestinations($item['payment']->payment_uuid, $btc_send_list, 'default', true, $fee/self::SATOSHI_MOD);
+                        }
+                    }
+
 				}
-				else{
+				else{ //otherwise send to single address
 					if($token == 'BTC'){
 						if($item['sweep_outputs']){
 							//BTC payment.. sweep it all to their address
