@@ -20,7 +20,7 @@ class SlotsController extends APIController {
 		$user = User::$api_user;
 		$slots = Slot::where('userId', '=', $user->id)
 				->select('public_id','tokens','webhook','min_conf','forward_address',
-						'label', 'nickname', 'created_at', 'updated_at')
+						'label', 'nickname', 'created_at', 'updated_at', 'expire_timeout')
 				->get();
 		foreach($slots as &$slot){
 			$slot->min_conf = intval($slot->min_conf);
@@ -45,7 +45,7 @@ class SlotsController extends APIController {
 				->where('public_id', '=', $slotId)
 				->orWhere('nickname', '=', $slotId)
 				->select('public_id','tokens','webhook','min_conf','forward_address',
-						 'label', 'nickname', 'created_at', 'updated_at')
+						 'label', 'nickname', 'created_at', 'updated_at', 'expire_timeout')
 				->first();
 		if(!$slot){
 			$output = array('error' => 'Invalid slot ID');
@@ -96,9 +96,13 @@ class SlotsController extends APIController {
 		}
 		if(!$andCancel){
 			$payments = $payments->where('cancelled', '!=', '1');
-		}		
+		}
+        if(!isset($input['include_archived'])){		
+            $payments = $payments->where('archived', 0);
+        }
+        
 		$payments = $payments->select('id', 'address', 'asset', 'total', 'received', 'complete', 'init_date', 'complete_date',
-							 'reference', 'tx_info', 'cancelled', 'cancel_time')
+							 'reference', 'tx_info', 'cancelled', 'cancel_time', 'expire_timeout', 'archived', 'archived_date')
 					->get();
 		foreach($payments as &$payment){
 			$payment->tx_info = json_decode($payment->tx_info);
@@ -256,6 +260,12 @@ class SlotsController extends APIController {
 		if(isset($input['nickname'])){
 			$slot->nickname = trim($input['nickname']);
 		}
+        if(isset($input['expire_timeout'])){
+            $expire_timeout = intval($input['expire_timeout']);
+            if($expire_timeout > 0){
+                $slot->expire_timeout = $expire_timeout;
+            }
+        }
 		$save = $slot->save();
 		$output = array();
 		$output['public_id'] = $slot->public_id;
@@ -267,6 +277,7 @@ class SlotsController extends APIController {
 		$output['nickname'] = $slot->nickname;
 		$output['created_at'] = $slot->created_at;
 		$output['updated_at'] = $slot->updated_at;
+		$output['expire_timeout'] = $slot->expire_timeout;
 		
 		$decode_forward = json_decode($output['forward_address'], true);
 		if(is_array($decode_forward)){
@@ -407,6 +418,12 @@ class SlotsController extends APIController {
 			$output = array('error' => 'No fields updated');
 			return Response::json($output, 400);
 		}
+        if(isset($input['expire_timeout'])){
+            $expire_timeout = intval($input['expire_timeout']);
+            if($expire_timeout > 0){
+                $getSlot->expire_timeout = $expire_timeout;
+            }
+        }        
 		$save = $getSlot->save();
 		if(!$save){
 			$output = array('error' => 'Error saving slot');
@@ -422,6 +439,7 @@ class SlotsController extends APIController {
 		$output['nickname'] = $getSlot->nickname;
 		$output['created_at'] = $getSlot->created_at;
 		$output['updated_at'] = $getSlot->updated_at;
+		$output['expire_timeout'] = $getSlot->expire_timeout;
 		
 		$decode_forward = json_decode($output['forward_address'], true);
 		if(is_array($decode_forward)){

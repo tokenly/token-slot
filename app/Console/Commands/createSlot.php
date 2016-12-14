@@ -43,7 +43,7 @@ class createSlot extends Command {
 		$user = User::where('email', '=', $email)->first();
 		if(!$user){
 			throw new Exception('Client not found');
-		}
+        }
 		
 		$asset = strtoupper($this->argument('asset'));
 		$webhook = $this->argument('webhook');

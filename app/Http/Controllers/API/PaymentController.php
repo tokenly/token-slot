@@ -266,6 +266,14 @@ class PaymentController extends APIController {
                 return Response::json($output, 400);
             }
         }
+        
+        $expire_timeout = null;
+        if(isset($input['expire_timeout'])){
+            $input['expire_timeout'] = intval($input['expire_timeout']);
+            if($input['expire_timeout'] > 0){
+                $expire_timeout = $input['expire_timeout'];
+            }
+        }
 		
 		//save the payment data
 		$payment = new Payment;
@@ -282,6 +290,7 @@ class PaymentController extends APIController {
 		$payment->peg_value = $peg_total;
 		$payment->forward_address = $forward_address;
         $payment->min_conf = $min_conf;
+        $payment->expire_timeout = $expire_timeout;
 		try{
 			$save = $payment->save();
 		}
@@ -416,7 +425,7 @@ class PaymentController extends APIController {
 		}
 		
 		$payments = $payments->select('id', 'address', 'token', 'total', 'received', 'peg', 'peg_value', 'complete', 'init_date', 'complete_date',
-							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time')->orderBy('id', 'desc')->get();
+							 'reference', 'tx_info', 'slotId as slot_id', 'cancelled', 'cancel_time', 'archived', 'archived_date', 'expire_timeout')->orderBy('id', 'desc')->get();
 					
 		foreach($payments as &$payment){
 			$payment->tx_info = json_decode($payment->tx_info);

@@ -41,10 +41,15 @@ class Payment extends Model
 							  ->select('id', 'slotId', 'address', 'total', 'received', 'peg', 'peg_value',
 									   'complete', 'init_date', 'complete_date',
 									   'tx_info', 'reference', 'cancelled', 'cancel_time',
-									   'monitor_uuid', 'payment_uuid', 'forward_address', 'swept', 'sweep_info')
+									   'monitor_uuid', 'payment_uuid', 'forward_address', 'swept', 'sweep_info', 'archived', 'archived_date', 'expire_timeout')
 							  ->first();	
 		return $get;
 		
 	}
+    
+    public function slot()
+    {
+        return Slot::find($this->slotId);
+    }
 	
 }

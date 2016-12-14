@@ -68,26 +68,25 @@ class expirePayments extends Command
     public function handle()
     {
         $this->comment('['.DateProvider::now().'] begin expiring payments');
-        $seconds_old = env('EXPIRE_OLD_ADDRESSES_SECONDS', 172800);
         $max = $this->option('max');
         if($this->option('all')){
             $max = null;
         }
-        $count_expired = $this->expirePayments($seconds_old, $max);
+        $count_expired = $this->expirePayments($max);
         $this->comment('['.DateProvider::now().'] Finished expiring payments. Expired '.$count_expired.' payment(s).');
     }
 
     // ------------------------------------------------------------------------
     
-    protected function expirePayments($seconds_old, $limit=null) {
+    protected function expirePayments($limit=null) {
         $payment_repository = app('App\Repositories\PaymentRequestRepository');
-        $unarchived_payments = $payment_repository->findUnarchivedOlderThanSeconds($seconds_old, $limit);
+        $unarchived_payments = $payment_repository->findUnarchived($limit);
         $this->info('Checking '.count($unarchived_payments).' for expiration');
         foreach($unarchived_payments as $unarchived_payment) {
             $this->archivePayment($unarchived_payment);
         }
 
-        return $unarchived_payments->count();
+        return count($unarchived_payments);
     }
 
     protected function archivePayment(Payment $unarchived_payment) {
