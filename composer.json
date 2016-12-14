@@ -9,6 +9,7 @@
 		"tokenly/xchain-client": "^0.2",
 		"tokenly/bitcoin-currency-lib": "^1",
 		"tokenly/hmac-auth": "^1",
+		"tokenly/bitsplit-client": "dev-master@dev",
 		"linusu/bitcoin-address-validator": "~0",
 		"guzzlehttp/guzzle": "~6.0",
 		"satooshi/php-coveralls": "~0",
@@ -34,6 +35,12 @@
 			"App\\": "app/"
 		}
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/tokenly/bitsplit-client"
+		}
+	],        
 	"autoload-dev": {
 		"classmap": [
             "tests/testlib/",

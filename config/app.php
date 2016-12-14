@@ -153,6 +153,7 @@ return [
 		'Tokenly\LaravelApiProvider\APIServiceProvider',		
 		'Tokenly\LaravelBlockingBeanstalkd\BlockingBeanstalkServiceProvider',
 		'Tokenly\XcallerClient\Provider\XCallerClientServiceProvider',
+		'Tokenly\BitsplitClient\BitsplitServiceProvider',
 	],
 
 	/*
