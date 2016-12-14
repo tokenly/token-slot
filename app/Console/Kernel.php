@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel {
 	protected function schedule(Schedule $schedule)
 	{
 		$schedule->command('sweepTokens')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/sweep.log');
-		$schedule->command('expirePayments')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/expire.log');
+		$schedule->command('expirePayments --archive-on-error=1')->hourly()->withoutOverlapping()->sendOutputTo(storage_path().'/expire.log');
 	}
 
 }
