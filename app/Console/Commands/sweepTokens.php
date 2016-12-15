@@ -116,16 +116,34 @@ class sweepTokens extends Command {
                         $distro_opts = array();
                         $distro_opts['label'] = 'Tokenslot forwarding for payment #'.$item['payment']->id;
                         $distro_opts['value_type'] = 'percent';
-                        $distro = $this->bitsplit->createDistribution($token, $address, true, $distro_opts);
-                        if($distro AND isset($distro['deposit_address'])){
-                            $send_item = array();
-                            $send_item['bitsplit'] = $distro;
-                            $send_item['xchain'] = $this->xchain->send($item['payment']->payment_uuid, $distro['deposit_address'],
-                                                          $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);                            
-                            $send = $send_item;
+                        $distro_list = $address;
+                        foreach($distro_list as $addr => $split){
+                            $distro_list[$addr] = $split / 100;
+                        }
+                        if(count($distro_list < 3)){
+                            //actually just do regular sends instead
+                            $send = array();
+                            $balance = $item['balances'][$token];
+                            foreach($distro_list as $addr => $split){
+                                $amount = round($balance * $split);
+                                $send[] = $this->xchain->send($item['payment']->payment_uuid, $addr, $amount/self::SATOSHI_MOD,
+                                                              $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
+                            }
+                            
                         }
                         else{
-                            throw new Exception('Error creating distribution for payment '.$item['payment']->id);
+                            //bitsplit
+                            $distro = $this->bitsplit->createDistribution($token, $address, true, $distro_opts);
+                            if($distro AND isset($distro['deposit_address'])){
+                                $send_item = array();
+                                $send_item['bitsplit'] = $distro;
+                                $send_item['xchain'] = $this->xchain->send($item['payment']->payment_uuid, $distro['deposit_address'],
+                                                              $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);                            
+                                $send = $send_item;
+                            }
+                            else{
+                                throw new Exception('Error creating distribution for payment '.$item['payment']->id);
+                            }
                         }
                     }
                     else{
@@ -137,7 +155,7 @@ class sweepTokens extends Command {
                         $send_balance = $balance - $fee;
                         $btc_send_list = array();
                         foreach($address as $addr => $split){
-                            $amount = round($send_balance * $split);
+                            $amount = round($send_balance * ($split / 100));
                             if($amount <= 5500){ //cannot send less than dust limit
                                 continue;
                             }
@@ -204,9 +222,9 @@ class sweepTokens extends Command {
 					}
 				}
 			}
-			sleep(2);
+			//sleep(2);
 		}
-		sleep(5);
+		//sleep(5);
 	}
 	
 	protected function prepSendAmounts($payments)
