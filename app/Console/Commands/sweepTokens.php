@@ -120,7 +120,7 @@ class sweepTokens extends Command {
                         foreach($distro_list as $addr => $split){
                             $distro_list[$addr] = $split / 100;
                         }
-                        if(count($distro_list < 3)){
+                        if(count($distro_list) < 3){
                             //actually just do regular sends instead
                             $send = array();
                             $balance = $item['balances'][$token];
