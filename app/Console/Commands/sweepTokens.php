@@ -116,6 +116,7 @@ class sweepTokens extends Command {
                         $distro_opts = array();
                         $distro_opts['label'] = 'Tokenslot forwarding for payment #'.$item['payment']->id;
                         $distro_opts['value_type'] = 'percent';
+                        $distro_opts['asset_total'] = $item['balances'][$token]/self::SATOSHI_MOD;
                         $distro_list = $address;
                         foreach($distro_list as $addr => $split){
                             $distro_list[$addr] = $split / 100;
