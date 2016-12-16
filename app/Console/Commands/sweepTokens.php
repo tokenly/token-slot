@@ -140,6 +140,10 @@ class sweepTokens extends Command {
                                 $send_item['bitsplit'] = $distro;
                                 $send_item['xchain'] = $this->xchain->send($item['payment']->payment_uuid, $distro['deposit_address'],
                                                               $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);                            
+                                $send_item['quantity'] = $item['balances'][$token]/self::SATOSHI_MOD;
+                                $send_item['asset'] = $token;
+                                $send_item['destination'] = $distro['deposit_address'];
+                                $send_item['txid'] = null;
                                 $send = $send_item;
                             }
                             else{
