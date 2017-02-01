@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Payment;
+use Tokenly\CurrencyLib\CurrencyUtil as Currency;
 
 class markComplete extends Command
 {
