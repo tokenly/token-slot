@@ -219,8 +219,11 @@ class PaymentController extends APIController {
 					}
 					$f_split = round($r, 8, PHP_ROUND_HALF_DOWN);
 					$used_split -= $f_split;
-					if($used_split < 0 OR $used_split > 100){
-						$output = array('error' => 'Invalid forwarding address split amounts, cannot split less than 0% or greater than 100%');
+                    if($used_split < 0){
+                        $used_split = 0;
+                    }
+					if($used_split > 100){
+						$output = array('error' => 'Invalid forwarding address split amounts, cannot split greater than 100%');
 						return Response::json($output, 400);
 					}
 					$forward_list[$f_address] = $f_split;
