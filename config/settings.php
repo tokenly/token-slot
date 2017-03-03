@@ -3,7 +3,7 @@
 return array(
 	'sweep_tx_fee' => 40000,
 	'sweep_tx_dust' => 5430,
-	'min_fuel_cost' => 15000,
+	'min_fuel_cost' => 40000,
 	'sweep_fuel_source' => env('TOKENSLOT_FUEL_SOURCE'),
 	'sweep_fuel_source_uuid' => env('TOKENSLOT_FUEL_UUID'),
 	'peggable_tokens' => array('BTC','LTBC','FLDC','GEMZ','SWARM','SJCX','XCP','BITCRYSTALS'),
