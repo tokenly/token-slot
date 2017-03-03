@@ -1,7 +1,7 @@
 <?php
 
 return array(
-	'sweep_tx_fee' => 15000,
+	'sweep_tx_fee' => 40000,
 	'sweep_tx_dust' => 5430,
 	'min_fuel_cost' => 15000,
 	'sweep_fuel_source' => env('TOKENSLOT_FUEL_SOURCE'),
