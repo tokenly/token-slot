@@ -7,7 +7,7 @@ return array(
 	'sweep_fuel_source' => env('TOKENSLOT_FUEL_SOURCE'),
 	'sweep_fuel_source_uuid' => env('TOKENSLOT_FUEL_UUID'),
 	'peggable_tokens' => array('BTC','LTBC','FLDC','GEMZ','SWARM','SJCX','XCP','BITCRYSTALS'),
-	'peg_currencies' => array('USD', 'BTC'),
-	'peg_currency_denoms' => array('USD' => 100, 'BTC' => 100000000),
+	'peg_currencies' => array('USD', 'BTC', 'EUR',),
+	'peg_currency_denoms' => array('USD' => 100, 'BTC' => 100000000, 'EUR' => 100,),
 	'peggable_token_aliases' => array('LTBCOIN' => 'LTBC'),
 );
