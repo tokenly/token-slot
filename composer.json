@@ -6,7 +6,7 @@
 	"type": "project",
 	"require": {
 		"laravel/framework": "5.2.*",
-		"tokenly/xchain-client": "^0.2",
+		"tokenly/xchain-client": "dev-master",
 		"tokenly/bitcoin-currency-lib": "^1",
 		"tokenly/hmac-auth": "^1",
 		"tokenly/bitsplit-client": "dev-master@dev",
