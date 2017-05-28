@@ -33,6 +33,7 @@ class sweepTokens extends Command {
 		parent::__construct();
 		$this->tx_fee = Config::get('settings.sweep_tx_fee');
 		$this->tx_dust = Config::get('settings.sweep_tx_dust');
+		$this->fee_rate = Config::get('settings.fee_per_byte');
 		$this->fuel_source = Config::get('settings.sweep_fuel_source');
 		$this->fuel_source_id = Config::get('settings.sweep_fuel_source_uuid');
 		$this->min_fuel_cost = Config::get('settings.min_fuel_cost');
@@ -127,8 +128,8 @@ class sweepTokens extends Command {
                             $balance = $item['balances'][$token];
                             foreach($distro_list as $addr => $split){
                                 $amount = round($balance * $split);
-                                $send[] = $this->xchain->send($item['payment']->payment_uuid, $addr, $amount/self::SATOSHI_MOD,
-                                                              $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);
+                                $send[] = $this->xchain->sendWithFeeRate($item['payment']->payment_uuid, $addr, $amount/self::SATOSHI_MOD,
+                                                              $token, $this->fee_rate);
                             }
                             
                         }
@@ -138,8 +139,8 @@ class sweepTokens extends Command {
                             if($distro AND isset($distro['deposit_address'])){
                                 $send_item = array();
                                 $send_item['bitsplit'] = $distro;
-                                $send_item['xchain'] = $this->xchain->send($item['payment']->payment_uuid, $distro['deposit_address'],
-                                                              $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);                            
+                                $send_item['xchain'] = $this->xchain->sendWithFeeRate($item['payment']->payment_uuid, $distro['deposit_address'],
+                                                              $item['balances'][$token]/self::SATOSHI_MOD, $token, $this->fee_rate);                          
                                 $send_item['quantity'] = $item['balances'][$token]/self::SATOSHI_MOD;
                                 $send_item['asset'] = $token;
                                 $send_item['destination'] = $distro['deposit_address'];
@@ -167,7 +168,7 @@ class sweepTokens extends Command {
                             $btc_send_list[] = array('address' => $addr, 'amount' => $amount/self::SATOSHI_MOD);
                         }
                         if(count($btc_send_list) > 0){
-                            $send = $this->xchain->sendBTCToMultipleDestinations($item['payment']->payment_uuid, $btc_send_list, 'default', true, $fee/self::SATOSHI_MOD);
+                            $send = $this->xchain->sendBTCToMultipleDestinations($item['payment']->payment_uuid, $btc_send_list, 'default', true, null, null, $this->fee_rate);
                         }
                     }
 
@@ -176,13 +177,13 @@ class sweepTokens extends Command {
 					if($token == 'BTC'){
 						if($item['sweep_outputs']){
 							//BTC payment.. sweep it all to their address
-							$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address, $this->tx_fee/self::SATOSHI_MOD);
+							$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address, null, null, $this->fee_rate);
 						}
 					}
 					else{
 						$balance = $item['balances'][$token];
-						$send = $this->xchain->send($item['payment']->payment_uuid, $address,
-													$balance/self::SATOSHI_MOD, $token, $this->tx_fee/self::SATOSHI_MOD, $this->tx_dust/self::SATOSHI_MOD);						
+						$send = $this->xchain->sendWithFeeRate($item['payment']->payment_uuid, $address,
+													$balance/self::SATOSHI_MOD, $token, $this->fee_rate);						
 					}
 				}
 			}
@@ -212,15 +213,15 @@ class sweepTokens extends Command {
 					$item['prime_btc'] = $min_cost;
 				}
 				try{
-					$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
-													'BTC', $this->tx_fee/self::SATOSHI_MOD);
+					$prime_input = $this->xchain->sendWithFeeRate($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
+													'BTC', $this->fee_rate);
 				}
 				catch(Exception $e){
 					$this->error('Error priming: '.$e->getMessage());
 					sleep(2);
 					try{
-						$prime_input = $this->xchain->send($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
-														'BTC', $this->tx_fee/self::SATOSHI_MOD);
+						$prime_input = $this->xchain->sendWithFeeRate($this->fuel_source_id, $item['payment']['address'], $item['prime_btc']/self::SATOSHI_MOD,
+														'BTC', $this->fee_rate);
 					}
 					catch(Exception $e){
 						$this->error('Error priming (attempt 2): '.$e->getMessage());
