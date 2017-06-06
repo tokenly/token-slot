@@ -62,6 +62,17 @@ class scanInvoiceBalances extends Command
                 $this->error('Error retrieving balances for address '.$invoice->address.' ['.$invoice->id.']');
                 continue;
             }
+            if(is_array($balances)){
+                $all_empty = true;
+                foreach($balances as $asset => $balance){
+                    if($balance > 0){
+                        $all_empty = false;
+                    }
+                }
+                if($all_empty){
+                    $balances = false;
+                }
+            }
             if(!$balances OR count($balances) == 0){
                 $this->info('No balances found for address '.$invoice->address.' ['.$invoice->id.']');
                 continue;
