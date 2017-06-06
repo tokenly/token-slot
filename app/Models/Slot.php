@@ -8,5 +8,10 @@ use Exception;
 class Slot extends APIModel {
 
     protected $api_attributes = ['id',];
-
+    
+    
+    public function user()
+    {
+        return User::find($this->userId);
+    }
 }

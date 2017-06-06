@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\resendNotification',
 		'App\Console\Commands\expirePayments',
 		'App\Console\Commands\markComplete',
+		'App\Console\Commands\scanInvoiceBalances',
 	];
 
 	/**
