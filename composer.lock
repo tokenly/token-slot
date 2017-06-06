@@ -1561,23 +1561,27 @@
         },
         {
             "name": "symfony/config",
-            "version": "v3.2.8",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "e5533fcc0b3dd377626153b2852707878f363728"
+                "reference": "35716d4904e0506a7a5a9bcf23f854aeb5719bca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/e5533fcc0b3dd377626153b2852707878f363728",
-                "reference": "e5533fcc0b3dd377626153b2852707878f363728",
+                "url": "https://api.github.com/repos/symfony/config/zipball/35716d4904e0506a7a5a9bcf23f854aeb5719bca",
+                "reference": "35716d4904e0506a7a5a9bcf23f854aeb5719bca",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.9",
                 "symfony/filesystem": "~2.8|~3.0"
             },
+            "conflict": {
+                "symfony/dependency-injection": "<3.3"
+            },
             "require-dev": {
+                "symfony/dependency-injection": "~3.3",
                 "symfony/yaml": "~3.0"
             },
             "suggest": {
@@ -1586,7 +1590,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -1613,7 +1617,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2017-04-12T14:13:17+00:00"
+            "time": "2017-06-02T18:07:20+00:00"
         },
         {
             "name": "symfony/console",
@@ -1734,7 +1738,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.20",
+            "version": "v2.8.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -1794,16 +1798,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.2.8",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "040651db13cf061827a460cc10f6e36a445c45b4"
+                "reference": "c709670bf64721202ddbe4162846f250735842c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/040651db13cf061827a460cc10f6e36a445c45b4",
-                "reference": "040651db13cf061827a460cc10f6e36a445c45b4",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c709670bf64721202ddbe4162846f250735842c0",
+                "reference": "c709670bf64721202ddbe4162846f250735842c0",
                 "shasum": ""
             },
             "require": {
@@ -1812,7 +1816,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -1839,7 +1843,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2017-04-12T14:13:17+00:00"
+            "time": "2017-05-28T14:08:56+00:00"
         },
         {
             "name": "symfony/finder",
@@ -2318,16 +2322,16 @@
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v3.2.8",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
-                "reference": "5a0105afb670dbd38f521105c444de1b8e10cfe3"
+                "reference": "602a15299dc01556013b07167d4f5d3a60e90d15"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/5a0105afb670dbd38f521105c444de1b8e10cfe3",
-                "reference": "5a0105afb670dbd38f521105c444de1b8e10cfe3",
+                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/602a15299dc01556013b07167d4f5d3a60e90d15",
+                "reference": "602a15299dc01556013b07167d4f5d3a60e90d15",
                 "shasum": ""
             },
             "require": {
@@ -2336,7 +2340,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -2363,7 +2367,7 @@
             ],
             "description": "Symfony Stopwatch Component",
             "homepage": "https://symfony.com",
-            "time": "2017-04-12T14:13:17+00:00"
+            "time": "2017-04-12T14:14:56+00:00"
         },
         {
             "name": "symfony/translation",
@@ -2494,16 +2498,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.2.8",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "acec26fcf7f3031e094e910b94b002fa53d4e4d6"
+                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/acec26fcf7f3031e094e910b94b002fa53d4e4d6",
-                "reference": "acec26fcf7f3031e094e910b94b002fa53d4e4d6",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/9752a30000a8ca9f4b34b5227d15d0101b96b063",
+                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063",
                 "shasum": ""
             },
             "require": {
@@ -2518,7 +2522,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "3.3-dev"
                 }
             },
             "autoload": {
@@ -2545,7 +2549,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-05-01T14:55:58+00:00"
+            "time": "2017-06-02T22:05:06+00:00"
         },
         {
             "name": "tokenly/bitcoin-currency-lib",
