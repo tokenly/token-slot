@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Tokenly\LaravelApiProvider\Model\APIModel;
-use Exception;
+use Exception, User;
 
 class Slot extends APIModel {
 
