@@ -177,7 +177,7 @@ class sweepTokens extends Command {
 					if($token == 'BTC'){
 						if($item['sweep_outputs']){
 							//BTC payment.. sweep it all to their address
-							$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address, null, null, $this->fee_rate);
+							$send = $this->xchain->sweepAllAssets($item['payment']->payment_uuid, $address, null, null, null, $this->fee_rate);
 						}
 					}
 					else{
