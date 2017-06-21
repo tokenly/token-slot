@@ -188,7 +188,7 @@ class sweepTokens extends Command {
 				}
 			}
 			catch(Exception $e){
-				$this->error('Error sending tokens: ['.$item['payment']->address.'] '.$e->getMessage());
+				$this->error('Error sending tokens: ['.$item['payment']->address.'] '.$item['payment']->token.' '.$e->getMessage());
 				$send = false;
 			}
 			
@@ -196,7 +196,7 @@ class sweepTokens extends Command {
 				$item['send_info'] = $send;
 			}
 			else{
-				$this->error('Unkown error sending tokens: ['.$item['payment']->address.'] ');
+				$this->error('Unkown error sending tokens: ['.$item['payment']->address.'] '.$item['payment']->token);
 				$item['send_info'] = false;
 			}
 			$payments[$k] = $item;
