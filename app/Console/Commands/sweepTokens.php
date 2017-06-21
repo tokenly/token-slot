@@ -196,7 +196,7 @@ class sweepTokens extends Command {
 				$item['send_info'] = $send;
 			}
 			else{
-				$this->error('Unkown error sending tokens');
+				$this->error('Unkown error sending tokens: ['.$item['payment']->address.'] ');
 				$item['send_info'] = false;
 			}
 			$payments[$k] = $item;
