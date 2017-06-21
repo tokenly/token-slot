@@ -367,7 +367,7 @@ class PaymentController extends APIController {
 	{
 		$output = array('result' => false);
 		$getPayment = Payment::getPayment($paymentId);
-		if($getPayment->cancelled == 1){
+		if(!$getPayment OR $getPayment->cancelled == 1){
 			$output['error'] = 'Payment already cancelled';
 			return Response::json($output, 400);
 		}
