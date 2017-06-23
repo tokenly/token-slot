@@ -155,9 +155,15 @@ class sweepTokens extends Command {
                     else{
                         //BTC multi-send
                         $balance = $item['balances'][$token];
-                        $fee = $this->tx_fee;
-                        $extra_bytes = 40*count($address);
-                        $fee += $extra_bytes * 50; //add some extra satoshis to account for tx size
+                        $tx_info = $item['payment']['tx_info'];
+                        if(!is_array($tx_info)){
+                            $tx_info = json_decode($tx_info, true);
+                        }
+                        $tx_inputs = count($tx_info) * 181;
+                        $extra_bytes = 34*count($address);
+                        $tx_bytes = $tx_inputs + $extra_bytes + 10;
+                        $fee = ceil($tx_bytes * $this->fee_rate);
+                        
                         $send_balance = $balance - $fee;
                         $btc_send_list = array();
                         foreach($address as $addr => $split){
