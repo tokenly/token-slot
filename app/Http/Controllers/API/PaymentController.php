@@ -178,7 +178,7 @@ class PaymentController extends APIController {
 			$monitor = $xchain->newAddressMonitor($address['address'], route('hooks.payment').'?nonce='.strtotime($time).$getSlot->id);
 		}
 		catch(Exception $e){
-			return Response::json(array('error' => 'Error generating payment request'), 500);
+			return Response::json(array('error' => 'Error generating payment request: '.$e->getMessage()), 500);
 		}
 		
 		$total = 0; //allow for 0 total for "pay what you want" type situations
