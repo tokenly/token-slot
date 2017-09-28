@@ -154,6 +154,7 @@ return [
 		'Tokenly\LaravelBlockingBeanstalkd\BlockingBeanstalkServiceProvider',
 		'Tokenly\XcallerClient\Provider\XCallerClientServiceProvider',
 		'Tokenly\BitsplitClient\BitsplitServiceProvider',
+        Tokenly\QuotebotClient\ServiceProvider\QuotebotServiceProvider::class,
 	],
 
 	/*
