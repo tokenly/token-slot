@@ -109,7 +109,7 @@ class PaymentController extends APIController {
             try{
                 if($peg != 'BTC'){
                     $fiat_btc = $quotebot_client->getCurrentBTCQuoteWithFallback($peg); // USD or EUR
-                    if(!$fiat_price){
+                    if(!$fiat_btc){
                         throw new Exception('Unknown error getting btc fiat price');
                     }
                 }
