@@ -53,7 +53,8 @@ class PaymentController extends APIController {
 		$valid_peg_total = FALSE;
 		$valid_peg_calculated = FALSE;
 		$peg = '';
-		$peg_total = '';
+		$peg_total = 0;
+        $peg_total_raw = 0;
 		$peg_tokens_list = Config::get('settings.peggable_tokens');
 		$peg_currencies = Config::get('settings.peg_currencies');
 		$peg_currency_denoms = Config::get('settings.peg_currency_denoms');
@@ -74,7 +75,8 @@ class PaymentController extends APIController {
 				if(isset($peg_currency_denoms[$peg])){
 					$peg_decimal = $peg_currency_denoms[$peg];
 				}
-				$peg_total = intval($input['peg_total']) / $peg_decimal;
+                $peg_total_raw = intval($input['peg_total']);
+				$peg_total = $peg_total_raw / $peg_decimal;
 				if($peg_total > 0){
 					$valid_peg_total = TRUE;                        
 				}
@@ -93,53 +95,53 @@ class PaymentController extends APIController {
 				$message = 'Pegging not supported with '.$input_peg_token.'. Supported tokens: '.join(', ', $peg_tokens_list);
 				return Response::json(array('error' => $message), 400);
 			}
-
-			$quotebot_url = env('QUOTEBOT_URL');
-
-			//we pull real time price data from quotebot
-			$quotebot_response = file($quotebot_url);
-			$quotebot_json_data = json_decode($quotebot_response[0]);
-			if(!is_object($quotebot_json_data)){
-				$message = 'Error retrieving token price quotes';
+            
+            if($input_peg_token == $peg){
+				$message = 'Cannot peg a token to itself';
 				return Response::json(array('error' => $message), 400);
-			}
-			$quotes = $quotebot_json_data->{'quotes'};
-			$pegged_satoshis = 0;
-			$fiat_btc = 0;
-			foreach($quotes as $quote){
-				list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
-				if($quote->{'source'} == 'bitcoinAverage' AND $order_currency == 'BTC' AND $payment_currency == $peg){
-					$fiat_btc = $quote->{'last'};
-				}				
-				if($payment_currency == $peg AND $order_currency == $input_peg_token){
-					//direct quote found
-					$quote_price = $quote->{'last'};
-					$pegged_satoshis = round(($peg_total / $quote_price), 4);
-					$pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD);
-					break;
-				}
-			}
+            }
+            
+            
+            //we pull real time price data from quotebot
+            $quotebot_client = app('Tokenly\QuotebotClient\Client');
+            $fiat_btc = 0;
+            $pegged_satoshis = 0;
+            try{
+                if($peg != 'BTC'){
+                    $fiat_btc = $quotebot_client->getCurrentBTCQuoteWithFallback($peg); // USD or EUR
+                    if(!$fiat_price){
+                        throw new Exception('Unknown error getting btc fiat price');
+                    }
+                }
+                if($input_peg_token != 'BTC'){
+                    $quote_price = $quotebot_client->getQuote('poloniex', array('BTC', $input_peg_token));
+                    if(!$quote_price OR !isset($quote_price['last'])){
+                        throw new Exception('Unknown error getting token price from poloniex'); 
+                    }
+                    $quote_price = $quote_price['last'];
+                    
+                    if($peg == 'BTC'){
+                        $pegged_satoshis = intval($peg_total_raw / $quote_price);
+                    }
+                    
+                    if($peg != 'BTC' AND $fiat_btc > 0){
+                        $btc_satoshis = round(($peg_total / $fiat_btc) * $SATOSHI_MOD);
+                        $pegged_satoshis = intval($btc_satoshis / $quote_price);
+                    }
+                    $pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD); 
+                    
+                }
+                else{
+                    $btc_satoshis = round(($peg_total / $fiat_btc) * $SATOSHI_MOD);
+                    $pegged_satoshis = intval($btc_satoshis);
+                }
+                
+            }
+            catch(Exception $e){
+                return Response::json(array('error' => 'Error getting peg quotes: '.$e->getMessage()), 400);
+            }
+            
 
-			if($pegged_satoshis == 0 AND $fiat_btc > 0){
-				foreach($quotes as $quote){
-					//now find the BTC price for our token
-					list($payment_currency,$order_currency) = explode(':',$quote->{'pair'});
-					if($order_currency == $input_peg_token){
-						//find the BTC satoshis for our peg total
-						$btc_satoshis = round(($peg_total/$fiat_btc) * $SATOSHI_MOD);
-						if($input_peg_token == 'BTC'){
-							$pegged_satoshis = $btc_satoshis;
-						}
-						else{
-							$token_price_satoshis = $quote->{'last'};
-							//finally, figure out satoshis of the token
-							$pegged_satoshis =round(($btc_satoshis / $token_price_satoshis), 4);
-							$pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD);
-						}
-					}
-				}
-			}
-	
 			if($pegged_satoshis <= 0){
 				$message = "Could not obtain peg for ".$peg.":".$input['token'];
 				return Response::json(array('error' => $message), 400);

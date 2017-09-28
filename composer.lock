@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3503e0cf2440cfef206e44942270485",
+    "content-hash": "98266f034933fbaa610886d0a6839fef",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -2816,6 +2816,48 @@
             "time": "2017-08-26T12:23:31+00:00"
         },
         {
+            "name": "tokenly/quotebot-client",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/quotebot-client.git",
+                "reference": "2d7ce0863a3aa222e4df8e987777e736c179fb3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/quotebot-client/zipball/2d7ce0863a3aa222e4df8e987777e736c179fb3c",
+                "reference": "2d7ce0863a3aa222e4df8e987777e736c179fb3c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.0",
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "dev-master",
+                "phpunit/phpunit": "^5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tokenly\\QuotebotClient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "dweller@devonweller.com",
+                    "homepage": "http://devonweller.com"
+                }
+            ],
+            "description": "A quotebot client library",
+            "time": "2017-09-28T04:25:37+00:00"
+        },
+        {
             "name": "tokenly/token-generator",
             "version": "dev-master",
             "source": {
@@ -4172,7 +4214,8 @@
         "tokenly/token-generator": 20,
         "tokenly/laravel-event-log": 20,
         "tokenly/laravel-blocking-beanstalkd": 20,
-        "tokenly/xcaller-client": 20
+        "tokenly/xcaller-client": 20,
+        "tokenly/quotebot-client": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
