@@ -118,7 +118,7 @@ class generateSystemStats extends Command
                 $overall_totals['payments'][$k] += $v;
             }
             foreach($user_total['tokens_collected'] as $token => $received){
-                if(!isset($overall_totals['tokens_colllected'][$token])){
+                if(!isset($overall_totals['tokens_collected'][$token])){
                     $overall_totals['tokens_collected'][$token] = 0;
                 }
                 $overall_totals['tokens_collected'][$token] += $received;
