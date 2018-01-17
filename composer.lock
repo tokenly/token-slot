@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f9a46d190c627868e08723fcf147a076",
+    "content-hash": "4c2f64641cb2cf9c17b4e3536615e9f4",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -159,6 +159,59 @@
                 "string"
             ],
             "time": "2017-07-22T12:18:28+00:00"
+        },
+        {
+            "name": "fluent/logger",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fluent/fluent-logger-php.git",
+                "reference": "c5a19ba8eb5e15f9ade72afeffba6b6e7eb51155"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fluent/fluent-logger-php/zipball/c5a19ba8eb5e15f9ade72afeffba6b6e7eb51155",
+                "reference": "c5a19ba8eb5e15f9ade72afeffba6b6e7eb51155",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.3",
+                "phpunit/phpunit-mock-objects": "2.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fluent\\Logger\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache"
+            ],
+            "authors": [
+                {
+                    "name": "Shuhei Tanuma",
+                    "email": "chobieee@gmail.com"
+                },
+                {
+                    "name": "Sotaro Karasawa",
+                    "email": "sotarok@crocos.co.jp"
+                },
+                {
+                    "name": "DQNEO",
+                    "email": "dqneoo@gmail.com"
+                }
+            ],
+            "description": "a logging library for Fluentd",
+            "homepage": "http://github.com/fluent/fluent-logger-php",
+            "keywords": [
+                "log",
+                "logging"
+            ],
+            "time": "2017-02-15T07:14:53+00:00"
         },
         {
             "name": "guzzle/guzzle",
@@ -2637,6 +2690,64 @@
                 "issues": "https://github.com/tokenly/bitsplit-client/issues"
             },
             "time": "2016-10-27T06:11:19+00:00"
+        },
+        {
+            "name": "tokenly/fluentd-logger",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/fluentd-logger.git",
+                "reference": "b50f0ea3cbaad2d2639a58418cf6eecdaf2e92b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/fluentd-logger/zipball/b50f0ea3cbaad2d2639a58418cf6eecdaf2e92b3",
+                "reference": "b50f0ea3cbaad2d2639a58418cf6eecdaf2e92b3",
+                "shasum": ""
+            },
+            "require": {
+                "fluent/logger": "~1.0",
+                "illuminate/support": "~5.1",
+                "php": "~5.6|~7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0||~5.0||~6.0",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tokenly\\FluentdLogger\\FluentdLoggerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tokenly\\FluentdLogger\\": "src"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "devon@tokenly.com",
+                    "homepage": "https://tokenly.com"
+                }
+            ],
+            "description": "A Fluentd logging component for Laravel",
+            "homepage": "https://github.com/tokenly/laravel-fluentd-logger",
+            "keywords": [
+                "fluentd",
+                "logging"
+            ],
+            "time": "2017-11-01T14:25:29+00:00"
         },
         {
             "name": "tokenly/hmac-auth",

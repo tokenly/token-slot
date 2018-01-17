@@ -21,7 +21,8 @@
 		"pda/pheanstalk": "~3",
 		"laravelcollective/bus": "^5.2.0",
         "tokenly/quotebot-client": "dev-master@dev",
-		"tokenly/platform-admin": "^3.0"
+		"tokenly/platform-admin": "^3.0",
+		"tokenly/fluentd-logger": "^1.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

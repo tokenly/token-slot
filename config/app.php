@@ -155,6 +155,8 @@ return [
 		'Tokenly\XcallerClient\Provider\XCallerClientServiceProvider',
 		'Tokenly\BitsplitClient\BitsplitServiceProvider',
         Tokenly\QuotebotClient\ServiceProvider\QuotebotServiceProvider::class,
+	    Tokenly\FluentdLogger\FluentdLoggerServiceProvider::class,
+	    Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
 	],
 
 	/*
