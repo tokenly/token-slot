@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "98266f034933fbaa610886d0a6839fef",
+    "content-hash": "f9a46d190c627868e08723fcf147a076",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -2814,6 +2814,104 @@
             ],
             "description": "An event logger provider for Laravel.",
             "time": "2017-08-26T12:23:31+00:00"
+        },
+        {
+            "name": "tokenly/laravel-record-lock",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/laravel-record-lock.git",
+                "reference": "93f483e2fc988800edceb0f9bcbe22cc70ccafbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/laravel-record-lock/zipball/93f483e2fc988800edceb0f9bcbe22cc70ccafbd",
+                "reference": "93f483e2fc988800edceb0f9bcbe22cc70ccafbd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tokenly\\RecordLock\\Provider\\RecordLockServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tokenly\\RecordLock\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "devon@tokenly.com",
+                    "homepage": "http://tokenly.com"
+                }
+            ],
+            "description": "A locking library",
+            "time": "2017-11-30T09:48:37+00:00"
+        },
+        {
+            "name": "tokenly/platform-admin",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/platform-admin.git",
+                "reference": "519dc52dd3e1ef901f702dc6b5d8985110e9813f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/519dc52dd3e1ef901f702dc6b5d8985110e9813f",
+                "reference": "519dc52dd3e1ef901f702dc6b5d8985110e9813f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0",
+                "tokenly/laravel-record-lock": "~1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~6"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Tokenly\\PlatformAdmin\\Provider\\PlatformAdminServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Tokenly\\PlatformAdmin\\": "src/"
+                },
+                "files": [
+                    "src/helpers/helpers.inc.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "devon@tokenly.com",
+                    "homepage": "http://tokenly.com"
+                }
+            ],
+            "description": "A platform administration module for Tokenly services",
+            "time": "2018-01-16T17:59:29+00:00"
         },
         {
             "name": "tokenly/quotebot-client",
