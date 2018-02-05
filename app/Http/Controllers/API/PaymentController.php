@@ -59,6 +59,7 @@ class PaymentController extends APIController {
 		$peg_currencies = Config::get('settings.peg_currencies');
 		$peg_currency_denoms = Config::get('settings.peg_currency_denoms');
 		$peg_token_aliases = Config::get('settings.peggable_token_aliases');
+        $hard_pegs = Config::get('settings.hard_pegs');
 		$SATOSHI_MOD = 100000000;
 		
 		if(isset($input['peg']) AND trim($input['peg']) != ''){
@@ -114,22 +115,31 @@ class PaymentController extends APIController {
                     }
                 }
                 if($input_peg_token != 'BTC'){
-                    $quote_price = $quotebot_client->getQuote('poloniex', array('BTC', $input_peg_token));
-                    if(!$quote_price OR !isset($quote_price['last'])){
-                        throw new Exception('Unknown error getting token price from poloniex'); 
+                    if(isset($hard_pegs[$input_peg_token])){
+                        $hard_peg = $hard_pegs[$input_peg_token];
+                        if(!isset($hard_peg[$peg])){
+                            throw new Exception('Asset can not be pegged to this currency');
+                        }
+                        
+                        $pegged_satoshis = intval($peg_total / $hard_peg[$peg] * $SATOSHI_MOD);
                     }
-                    $quote_price = $quote_price['last'];
-                    
-                    if($peg == 'BTC'){
-                        $pegged_satoshis = intval($peg_total_raw / $quote_price);
+                    else{
+                        $quote_price = $quotebot_client->getQuote('poloniex', array('BTC', $input_peg_token));
+                        if(!$quote_price OR !isset($quote_price['last'])){
+                            throw new Exception('Unknown error getting token price from poloniex'); 
+                        }
+                        $quote_price = $quote_price['last'];
+                        
+                        if($peg == 'BTC'){
+                            $pegged_satoshis = intval($peg_total_raw / $quote_price);
+                        }
+                        
+                        if($peg != 'BTC' AND $fiat_btc > 0){
+                            $btc_satoshis = round(($peg_total / $fiat_btc) * $SATOSHI_MOD);
+                            $pegged_satoshis = intval($btc_satoshis / $quote_price);
+                        }
+                        $pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD); 
                     }
-                    
-                    if($peg != 'BTC' AND $fiat_btc > 0){
-                        $btc_satoshis = round(($peg_total / $fiat_btc) * $SATOSHI_MOD);
-                        $pegged_satoshis = intval($btc_satoshis / $quote_price);
-                    }
-                    $pegged_satoshis = intval($pegged_satoshis * $SATOSHI_MOD); 
-                    
                 }
                 else{
                     $btc_satoshis = round(($peg_total / $fiat_btc) * $SATOSHI_MOD);
