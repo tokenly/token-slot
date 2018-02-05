@@ -121,7 +121,7 @@ class PaymentController extends APIController {
                             throw new Exception('Asset can not be pegged to this currency');
                         }
                         
-                        $pegged_satoshis = intval($peg_total / $hard_peg[$peg] * $SATOSHI_MOD);
+                        $pegged_satoshis = intval($peg_total / $hard_peg[$peg] * $peg_currency_denoms[$peg] * $SATOSHI_MOD);
                     }
                     else{
                         $quote_price = $quotebot_client->getQuote('poloniex', array('BTC', $input_peg_token));
