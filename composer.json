@@ -20,7 +20,9 @@
 		"tokenly/xcaller-client": "dev-master@dev",
 		"pda/pheanstalk": "~3",
 		"laravelcollective/bus": "^5.2.0",
-        "tokenly/quotebot-client": "dev-master@dev"
+        "tokenly/quotebot-client": "dev-master@dev",
+		"tokenly/platform-admin": "^3.0",
+		"tokenly/fluentd-logger": "^1.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
@@ -36,12 +38,6 @@
 			"App\\": "app/"
 		}
 	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/tokenly/bitsplit-client"
-		}
-	],        
 	"autoload-dev": {
 		"classmap": [
             "tests/testlib/",

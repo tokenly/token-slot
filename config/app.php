@@ -81,7 +81,7 @@ return [
 
 	'key' => env('APP_KEY', 'SomeRandomString'),
 
-	'cipher' => MCRYPT_RIJNDAEL_128,
+	'cipher' => 'AES-256-CBC',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -155,6 +155,8 @@ return [
 		'Tokenly\XcallerClient\Provider\XCallerClientServiceProvider',
 		'Tokenly\BitsplitClient\BitsplitServiceProvider',
         Tokenly\QuotebotClient\ServiceProvider\QuotebotServiceProvider::class,
+	    Tokenly\FluentdLogger\FluentdLoggerServiceProvider::class,
+	    Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
 	],
 
 	/*
