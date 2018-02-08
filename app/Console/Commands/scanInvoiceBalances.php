@@ -74,7 +74,7 @@ class scanInvoiceBalances extends Command
                 }
             }
             if(!$balances OR count($balances) == 0){
-                $this->info('No balances found for address '.$invoice->address.' ['.$invoice->id.']');
+                //$this->info('No balances found for address '.$invoice->address.' ['.$invoice->id.']');
                 continue;
             }
             
